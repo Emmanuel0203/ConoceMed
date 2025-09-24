@@ -6,7 +6,7 @@ Se comunica directamente con la base de datos a través de SQLAlchemy.
 """
 
 from extensiones import db
-from app.models.Usuario import Usuario
+from models.Usuario import Usuario
 
 
 class ControlUsuario:
