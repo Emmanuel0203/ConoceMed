@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<h2>Sugerir un Lugar Turístico</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div>
+        {{ form.nombre.label }}<br>
+        {{ form.nombre(size=40) }}
+    </div>
+    <div>
+        {{ form.direccion.label }}<br>
+        {{ form.direccion(size=40) }}
+    </div>
+    <div>
+        {{ form.latitud.label }}<br>
+        {{ form.latitud() }}
+    </div>
+    <div>
+        {{ form.longitud.label }}<br>
+        {{ form.longitud() }}
+    </div>
+    <div>
+        {{ form.descripcion.label }}<br>
+        {{ form.descripcion(rows=4, cols=40) }}
+    </div>
+    <div>
+        {{ form.submit() }}
+    </div>
+</form>
+{% endblock %}

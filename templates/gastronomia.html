@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Gastronomía{% endblock %}
+
+{% block content %}
+  <h1>Gastronomía</h1>
+  <p>La gastronomía de Medellín es rica y variada, con platos tradicionales como la bandeja paisa.</p>
+
+  <!-- Botón de volver -->
+  <a href="{{ url_for('index') }}#seccion2">
+    <button>Volver</button>
+  </a>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Inicializar el mapa en Medellín
+  var map = L.map('map').setView([6.2442, -75.5812], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  // Ejemplo de marcadores gastronómicos
+  L.marker([6.2518, -75.5636]).addTo(map)
+    .bindPopup('Restaurante típico 1');
+  L.marker([6.2525, -75.5730]).addTo(map)
+    .bindPopup('Restaurante típico 2');
+</script>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Sección 4 - ConoceMed{% endblock %}
+
+{% block content %}
+<section class="vista" id="seccion4">
+  <div class="declarar-contenedor">
+
+    <!-- Animación o imagen a la izquierda -->
+    <div class="declarar-animacion">
+      <img src="static/images/animacion.gif" alt="Animación" />
+      <!-- Puedes reemplazar el src con tu animación real -->
+    </div>
+
+    <!-- Formulario a la derecha -->
+    <div class="declarar-formulario">
+      <h2>DECLARA UN LUGAR</h2>
+      <p>Aquí puedes recomendar un lugar que debería estar en la app.</p>
+      
+      <form>
+        <input type="text" placeholder="Nombre y Apellido *" required />
+        <input type="email" placeholder="Correo Electrónico *" required />
+        <input type="text" placeholder="Nombre del Lugar *" required />
+        <input type="text" placeholder="Dirección del Lugar *" required />
+        <textarea placeholder="Descripción *" rows="4" required></textarea>
+        <input type="file" required />
+        <button type="submit">ENVIAR</button>
+      </form>
+    </div>
+
+  </div>
+</section>
+{% endblock %}
+
