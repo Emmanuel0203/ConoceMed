@@ -2,9 +2,10 @@ from flask import Blueprint, render_template, redirect, url_for, flash, Flask
 from config import Config
 
 # Importar y registrar las rutas (endpoints) 
-from app.views.vistaUsuario import vistaUsuario
-from app.views.vistaInicio import vistaInicio  
-from app.views.vistaSitio import vistaSitio 
+from views.vistaUsuario import vistaUsuario
+from views.vistaInicio import vistaInicio  
+from views.vistaSitio import vistaSitio
+from views.vistaLogin import vistaLogin
 
 
 app = Flask(__name__)
@@ -14,6 +15,7 @@ app.config.from_object(Config)
 app.register_blueprint(vistaUsuario, url_prefix="/usuarios")
 app.register_blueprint(vistaInicio, url_prefix="/inicio")
 app.register_blueprint(vistaSitio, url_prefix="/sitios")
+app.register_blueprint(vistaLogin, url_prefix='/login')
 
 
 @app.route("/")
