@@ -2,9 +2,53 @@
 
 {% block title %}Gastronomía{% endblock %}
 
+{% block head %}
+  <!-- Estilos de Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <style>
+  
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #86dddd;
+    }
+
+    h1 {
+      color: #154360;
+    }
+
+    a button {
+      background-color: #154360;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+      font-size: 1rem;
+    }
+
+    a button:hover {
+      background-color: #0b2e4a;
+    }
+
+    #map {
+      margin-top: 30px;
+      height: 600px;
+      width: 100%;
+      border-radius: 10px;
+      border: 2px solid #154360;
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
   <h1>Gastronomía</h1>
   <p>La gastronomía de Medellín es rica y variada, con platos tradicionales como la bandeja paisa.</p>
+
+  <!-- Mapa interactivo -->
+  <div id="map"></div>
 
   <!-- Botón de volver -->
   <a href="{{ url_for('index') }}#seccion2">
@@ -13,18 +57,29 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-  // Inicializar el mapa en Medellín
-  var map = L.map('map').setView([6.2442, -75.5812], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
+  <!-- Script de Leaflet -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-  // Ejemplo de marcadores gastronómicos
-  L.marker([6.2518, -75.5636]).addTo(map)
-    .bindPopup('Restaurante típico 1');
-  L.marker([6.2525, -75.5730]).addTo(map)
-    .bindPopup('Restaurante típico 2');
-</script>
+  <script>
+    // Inicializar el mapa en Medellín
+    var map = L.map('map').setView([6.2442, -75.5812], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // 🔹 Consumir API de sitios turísticos
+    fetch("http://localhost:5031/sitio_turistico")
+      .then(response => response.json())
+      .then(data => {
+        data.forEach(lugar => {
+          // Filtrar solo los de categoría Gastronomía
+          if (lugar.categoria && lugar.categoria.nombre === "Gastronomía") {
+            L.marker([lugar.lat, lugar.lng]).addTo(map)
+              .bindPopup(`<b>${lugar.nombre}</b><br>${lugar.descripcion}`);
+          }
+        });
+      })
+      .catch(error => console.error("Error al cargar los datos:", error));
+  </script>
 {% endblock %}
