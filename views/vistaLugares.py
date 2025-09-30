@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash
-from app.forms.formLugar_Sugerido import LugarSugeridoForm
+from forms.formLugar_Sugerido import LugarSugeridoForm
 import requests
 
 vistaLugares = Blueprint("vistaLugares", __name__)

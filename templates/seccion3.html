@@ -3,10 +3,50 @@
 {% block title %}Sección 1 - ConoceMed{% endblock %}
 
 {% block content %}
-<section class="vista" id="seccion3">
-  <div class="contenido">
-    <h1>¿Qué es?</h1>
-    <p>Aca vamos a escribir el porqué  y qué es la pagina que diseñamos</p>
+
+<section class="vista folleto" id="seccion3">
+  <div class="folleto-contenido">
+
+    <!-- Primera cara -->
+    <div class="cara cara1">
+      <h3>¿Qué es?</h3>
+      <p>
+        Nuestra aplicación web es una herramienta interactiva diseñada para facilitar el turismo en Medellín. A través de un mapa dinámico, los usuarios pueden explorar los principales puntos turísticos de la ciudad por categoría, descubrir lugares culturales, gastronómicos y hoteleros, haciendo que la experiencia de recorrer Medellín sea mucho más fácil y enriquecedora, tanto para visitantes como para locales.
+      </p>
+      
+      <h3>¿Por qué?</h3>
+      <p>
+        Una aplicación web con mapa interactivo facilita a los turistas explorar Medellín de forma más cómoda y segura. Permite ubicar sitios turísticos, restaurantes, eventos y rutas de transporte en tiempo real, mejorando su experiencia. Además, impulsa el turismo en zonas menos conocidas y refuerza la imagen de Medellín como una ciudad moderna, innovadora y acogedora.
+      </p>
+    </div>
+
+    <!-- Segunda cara -->
+    <div class="cara cara2">
+      <div class="polaroid-container">
+        <div class="polaroid">
+          <img src="{{ url_for('static', filename='images/imagen1.jpg') }}" alt="Lugar 1">
+          <div class="caption">Lugar 1</div>
+        </div>
+        <div class="polaroid">
+          <img src="{{ url_for('static', filename='images/imagen2.jpg') }}" alt="Lugar 2">
+          <div class="caption">Lugar 2</div>
+        </div>
+        <div class="polaroid">
+          <img src="{{ url_for('static', filename='images/imagen3.jpg') }}" alt="Lugar 3">
+          <div class="caption">Lugar 3</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tercera cara -->
+    <div class="cara cara3">
+      <div class="icono">🚀</div>
+      <h3>¿Cómo funciona?</h3>
+      <p>
+        El usuario navega por un mapa interactivo con filtros por categorías (hoteleria, gastronomía, historia) y puede declarar o sugerir nuevos lugares para enriquecer la comunidad, haciendo del turismo una experiencia personalizada y participativa.
+      </p>
+    </div>
+
   </div>
 </section>
 {% endblock %}

@@ -12,12 +12,38 @@ html, body {
   font-family: Arial, sans-serif;
 }
 
+/* ==== HEADER Y FOOTER FIJOS ==== */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px; /* ajusta según tu diseño */
+  z-index: 1050;
+}
+
+#footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: whitesmoke; /* o el color que uses */
+  color: rgb(53, 51, 51);
+  text-align: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
 /* ==== CONTENEDOR GENERAL ==== */
 #contenedor-vistas {
   height: 100vh;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   -webkit-overflow-scrolling: touch;
+
+  /* espacio reservado para que el contenido no quede oculto */
+  padding-top: 60px;   /* coincide con la altura del header */
+  padding-bottom: 50px; /* coincide con la altura del footer */
 }
 
 .vista {
@@ -64,15 +90,19 @@ html, body {
 
 /* ==== FONDOS POR SECCIÓN ==== */
 #seccion2 {
-  background-color: #696769;
+  background: linear-gradient(to right, #8bdba9, #bbeaee);
 }
 
 #seccion3 {
-  background-color: #696769;
+  background-color: #e6f9ed;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #seccion4 {
-  background-color: #696769;
+  background-color: #e6f9ed;
 }
 
 /* ==== TARJETAS DE SECCIÓN 2 (CATEGORÍAS) ==== */
@@ -138,6 +168,108 @@ html, body {
   background-image: url("/static/images/patrimonio.jpg");
 }
 
+/* ==== SECCIÓN 3: FOLLETO HORIZONTAL ==== */
+
+.folleto-contenido {
+  display: flex;
+  width: 90%;
+  max-width: 1500px;
+  height: 90%;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.folleto-contenido .cara {
+  flex: 1;
+  background-color: white;
+  padding: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.folleto-contenido .cara:nth-child(1) {
+  background-color: #ffe6f0; /* rosa claro */
+}
+
+.folleto-contenido .cara:nth-child(2) {
+  background-color: #76c495; /* verde claro */
+}
+
+.folleto-contenido .cara:nth-child(3) {
+  background-color: #ffe6f0; /* rosa claro */
+}
+
+.folleto-contenido .icono {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.folleto-contenido h3 {
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-family: Georgia, serif;
+}
+
+.folleto-contenido p {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 1rem; /* espacio debajo del título */
+  font-family: Times, serif;
+}
+
+/* ==== POLAROID ESTILO VERTICAL EN SEGUNDA CARA ==== */
+
+.polaroid-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.polaroid {
+  background: white;
+  padding: 10px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  border-radius: 8px;
+  width: 180px;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Imágenes dentro de la polaroid */
+.polaroid img {
+  width: 100%;
+  border-radius: 4px;
+  display: block;
+}
+
+/* Rotaciones para efecto casual vertical */
+.polaroid:nth-child(1) {
+  transform: rotate(-7deg);
+}
+
+.polaroid:nth-child(2) {
+  transform: rotate(5deg);
+}
+
+.polaroid:nth-child(3) {
+  transform: rotate(-3deg);
+}
+
+/* Hover para levantar imagen y dejarla recta */
+.polaroid:hover {
+  transform: rotate(0deg) scale(1.1);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.5);
+}
 
 /* ==== SECCIÓN 4: DECLARAR UN LUGAR ==== */
 
@@ -220,60 +352,130 @@ html, body {
   color: white;
 }
 
-/* ==== RESPONSIVE DESIGN ==== */
+/* ==== SECCIÓN 5: CARPETAS INTERACTIVAS ==== */
+
+#seccion5 {
+  background-color: #a1d3f0;
+  padding: 2rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+#seccion5 .declarar-formulario {
+  max-width: 600px;
+  width: 100%;
+  background-color: #164e7b;
+  box-shadow: 0 6px 15px rgba(245, 239, 239, 0.3);
+  padding: 2rem;
+  border-radius: 12px;
+  color: white;
+}
+
+#seccion5 .declarar-formulario h2 {
+  color: #bbeaee;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+
+.carpeta {
+  background-color: #0b3c59;
+  color: white;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 4px 10px rgb(2 61 104 / 0.33);
+  transition: background-color 0.3s ease;
+}
+
+.carpeta:hover {
+  background-color: #164e7b;
+}
+
+.carpeta:active {
+  background-color: #3a85c2;
+}
+
+.carpeta > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
+.subcarpetas {
+  margin-left: 20px;
+  margin-top: 10px;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+}
+
+.subcarpetas.closed {
+  max-height: 0;
+}
+
+.subcarpetas.open {
+  max-height: 500px; /* valor alto para permitir la expansión */
+}
+
+/* ==== BOTONES ==== */
+button {
+  cursor: pointer;
+  border-radius: 6px;
+  border: 2px solid #0b3c59;
+  background-color: transparent;
+  color: #0b3c59;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0b3c59;
+  color: white;
+}
+
+/* ==== RESPONSIVE ==== */
 @media (max-width: 960px) {
   .tarjetas-fila {
     flex-wrap: wrap;
     justify-content: center;
   }
-
   .tarjeta {
-    flex: 1 1 300px;
+    flex: 0 0 100%;
+    max-width: 400px;
+    margin-bottom: 2rem;
   }
-
-  .declarar-contenedor {
+  .folleto-contenido {
     flex-direction: column;
-    align-items: stretch;
-  }
-
-  .declarar-animacion,
-  .declarar-formulario {
+    height: auto;
     width: 100%;
   }
+  .folleto-contenido .cara {
+    width: 100%;
+    padding: 1rem;
+  }
+  .declarar-contenedor {
+    flex-direction: column;
+    gap: 1rem;
+  }
 }
 
-/* ==== HEADER Y FOOTER FIJOS ==== */
-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 60px; /* ajusta según tu diseño */
-  z-index: 1050;
-}
-
-#footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: whitesmoke; /* o el color que uses */
-  color: white;
-  text-align: center;
-  padding: 1rem;
-  z-index: 1000;
-}
-
-
-
-/* ==== CONTENEDOR AJUSTADO PARA HEADER Y FOOTER ==== */
-#contenedor-vistas {
-  height: 100vh;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-  -webkit-overflow-scrolling: touch;
-
-  /* espacio reservado para que el contenido no quede oculto */
-  padding-top: 60px;   /* coincide con la altura del header */
-  padding-bottom: 50px; /* coincide con la altura del footer */
+@media (max-width: 600px) {
+  .folleto-contenido h3 {
+    font-size: 1.3rem;
+  }
+  .folleto-contenido p {
+    font-size: 0.9rem;
+  }
+  .polaroid {
+    width: 130px;
+  }
+  .tarjeta {
+    height: 350px;
+  }
 }

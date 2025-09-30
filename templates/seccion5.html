@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Sección 5 - ConoceMed{% endblock %}
+
+{% block content %}
+
+<section class="vista" id="seccion5">
+  <div class="declarar-contenedor">
+
+    <!-- Contenido de carpetas a la derecha -->
+    <div class="declarar-formulario">
+      <h2>OTRA INFORMACIÓN DE INTERÉS</h2>
+      <p>Haz clic en cada carpeta para ver más detalles.</p>
+
+      <!-- Carpeta 1 -->
+      <div class="carpeta" onclick="toggleCarpeta(this)">
+        <h3>📁 persona 1</h3>
+        <div class="contenido-carpeta">
+          <p>información</p>
+        </div>
+      </div>
+
+      <!-- Carpeta 2 -->
+      <div class="carpeta" onclick="toggleCarpeta(this)">
+        <h3>📁 Persona 2</h3>
+        <div class="contenido-carpeta">
+          <p>información</p>
+        </div>
+      </div>
+
+      <!-- Carpeta 3 -->
+      <div class="carpeta" onclick="toggleCarpeta(this)">
+        <h3>📁 Persona 3</h3>
+        <div class="contenido-carpeta">
+          <p>información</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- JavaScript para comportamiento de carpetas -->
+<script>
+  function toggleCarpeta(element) {
+    const contenido = element.querySelector('.contenido-carpeta');
+    contenido.classList.toggle('visible');
+  }
+</script>
+{% endblock %}

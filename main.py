@@ -2,9 +2,9 @@ from flask import Blueprint, render_template, redirect, url_for, flash, Flask
 from config import Config
 
 # Importar y registrar las rutas (endpoints) 
-from app.views.vistaUsuario import vistaUsuario
-from app.views.vistaInicio import vistaInicio  
-from app.views.vistaSitio import vistaSitio 
+from views.vistaUsuario import vistaUsuario
+from views.vistaInicio import vistaInicio  
+from views.vistaSitio import vistaSitio 
 
 
 app = Flask(__name__)

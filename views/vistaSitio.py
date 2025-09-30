@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template
-from app.controllers.controlSitio import obtener_sitios
+from controllers.controlSitio import obtener_sitios
 
 vistaSitio = Blueprint("vistaSitio", __name__)
 

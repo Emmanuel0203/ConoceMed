@@ -1,6 +1,6 @@
 import requests
 from config import Config
-from app.models.Sitio import SitioTuristico
+from models.Sitio import SitioTuristico
 
 def obtener_sitios():
     try:
