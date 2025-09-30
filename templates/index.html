@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ConoceMed</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.70/build/spline-viewer.js"></script>
 </head>
 <body>
   <div id="contenedor-vistas">
@@ -12,6 +13,8 @@
     {% include "seccion2.html" %}
     {% include "seccion3.html" %}
     {% include "seccion4.html" %}
+    {% include "seccion5.html" %}
+    {% include "seccion6.html" %}
   </div>
 
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>

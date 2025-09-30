@@ -4,13 +4,14 @@
 
 {% block content %}
 <section class="vista" id="seccion2">
-  <div class="contenido">
-    <h1>Categorías de los lugares turísticos</h1>
+  <div class="titulo-sec2">
+    <h1>CATEGORÍAS DE LOS LUGARES TURÍSTICOS</h1>
     <p>Descubre lugares por categoría para que tú elijas qué quieres visitar en esta linda ciudad</p>
 
     <div class="tarjetas-fila">
       <!-- Gastronomía -->
       <a href="{{ url_for('gastronomia') }}" class="tarjeta gastronomia">
+        <spline-viewer class="icon-kit" url="https://prod.spline.design/EovZe9oJKQXY8MeT/scene.splinecode"></spline-viewer> 
         <div class="texto-tarjeta">
           <h3>Gastronomía</h3>
           <p>Sabores tradicionales</p>
@@ -18,6 +19,7 @@
       </a>
 
       <a href="{{ url_for('hoteleria') }}" class="tarjeta hoteleria">
+        <spline-viewer class="icon-kit" url="https://prod.spline.design/EovZe9oJKQXY8MeT/scene.splinecode"></spline-viewer> 
         <div class="texto-tarjeta">
           <h3>Hotelería</h3>
           <p>Hospédate con comodidad</p>
@@ -25,6 +27,7 @@
       </a>
 
       <a href="{{ url_for('patrimonio') }}" class="tarjeta patrimonio">
+        <spline-viewer class="icon-Art"  url="https://prod.spline.design/aYr9RQUNuOUpn8-I/scene.splinecode"></spline-viewer>
         <div class="texto-tarjeta">
           <h3>Patrimonio, Arte y Cultura</h3>
           <p>Raíces e historia</p>
