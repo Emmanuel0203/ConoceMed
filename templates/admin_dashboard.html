@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Admin</title>
+</head>
+<body>
+    <h2>Bienvenido, {{ current_user.nombre }}</h2>
+    <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+    <h3>Lugares sugeridos</h3>
+    {% for lugar in lugares %}
+        <div style="border:1px solid #333; margin:5px; padding:10px;">
+            <h4>{{ lugar.nombre }}</h4>
+            <p>{{ lugar.descripcion }}</p>
+            <button>Aceptar</button>
+            <button>Rechazar</button>
+        </div>
+    {% endfor %}
+</body>
+</html>
