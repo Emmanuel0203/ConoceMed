@@ -3,18 +3,35 @@
 {% block title %}Patrimonio, arte y cultura{% endblock %}
 
 {% block head %}
-  <!-- Estilos Leaflet -->
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <!-- Estilos personalizados -->
   <style>
+    html {
+      scroll-behavior: smooth; /* Scroll suave */
+    }
+
     body {
       font-family: Arial, sans-serif;
-      padding: 2rem;
-      background-color: #86dddd;
+      background-color: #cfd8d8;
+      overflow-x: hidden;
     }
+
+    .contenido-principal {
+      padding: 2rem;
+      background-color: #cfd8d8;
+      min-height: 100vh;
+    }
+
     h1 {
       color: #154360;
+      padding-top: 1rem;
     }
-    a button, button {
+
+    a button,
+    button {
+
       background-color: #154360;
       color: white;
       border: none;
@@ -24,12 +41,15 @@
       margin-top: 20px;
       font-size: 1rem;
     }
-    a button:hover, button:hover {
+
+    a button:hover,
+    button:hover {
       background-color: #0b2e4a;
     }
+
     #map {
-      margin-top: 30px;
-      height: 600px;
+      margin-top: 1.5rem;
+      height: 400px;
       width: 100%;
       border-radius: 10px;
       border: 2px solid #154360;
@@ -38,21 +58,31 @@
 {% endblock %}
 
 {% block content %}
-  <h1>Patrimonio, arte y cultura</h1>
-  <p>Medellín destaca por su patrimonio, arte y cultura, con museos, esculturas de Botero y festivales como la Feria de las Flores.</p>
+  <div class="contenido-principal">
+    <h1>Patrimonio, arte y cultura</h1>
+    <p>
+      Medellín destaca por su patrimonio, arte y cultura, con museos, esculturas de Botero y
+      festivales como la Feria de las Flores.
+    </p>
 
-  <!-- Mapa interactivo -->
-  <div id="map"></div>
+    <!-- Mapa interactivo -->
+    <div id="map"></div>
 
-  <a href="{{ url_for('index') }}#seccion4">
-    <button>Volver</button>
-  </a>
+    <!-- Botón de volver a la sección 2 -->
+    <div style="margin-top: 20px;">
+      <a href="{{ url_for('index') }}#seccion2">
+        <button>Volver</button>
+      </a>
+    </div>
+  </div>
 {% endblock %}
 
 {% block scripts %}
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
   <script>
-    // Inicializar mapa en Medellín
+    // Inicializar el mapa centrado en Medellín
     const mapa = L.map('map').setView([6.2518, -75.5636], 13);
 
     // Capa base
@@ -60,26 +90,46 @@
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(mapa);
 
-    // Consultar la API
-    fetch("http://localhost:5031")
-      .then(res => res.json())
-      .then(data => {
-        if (data.datos) {
-          data.datos.forEach(sitio => {
-            // Aquí puedes filtrar por categoría si es necesario:
-            // if (sitio.fkidcategoria_turistica !== "ID_CATEGORIA_PATRIMONIO") return;
+    // UUID de la categoría "Patrimonio y Cultura"
+    const CATEGORIA_PATRIMONIO_UUID = "4c96e8cc-bf91-4db6-9640-687eaf2942c0";
 
-            const marker = L.marker([sitio.latitud, sitio.longitud]).addTo(mapa);
-            marker.bindPopup(`
-              <h3>${sitio.nombre}</h3>
-              <p><b>Descripción:</b> ${sitio.descripcion}</p>
-              <p><b>Dirección:</b> ${sitio.direccion}</p>
-              <p><b>Horario:</b> ${sitio.horario_apertura} - ${sitio.horario_cierre}</p>
-              <p><b>Tarifa:</b> $${sitio.tarifa}</p>
-            `);
-          });
+    // Obtener sitios desde la API
+    fetch("http://localhost:5031/api/sitio_turistico")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("✅ Datos recibidos de la API:", data);
+
+        if (!data.datos || !Array.isArray(data.datos)) {
+          console.warn("⚠️ La API no devolvió una lista de sitios válida.");
+          return;
         }
+
+        const sitiosFiltrados = data.datos.filter(
+          (sitio) => sitio.fkidcategoria_turistica === CATEGORIA_PATRIMONIO_UUID
+        );
+
+        if (sitiosFiltrados.length === 0) {
+          alert("⚠️ No hay sitios para la categoría 'Patrimonio y Cultura'.");
+          return;
+        }
+
+        // Agregar marcadores al mapa
+        sitiosFiltrados.forEach((sitio) => {
+          if (!sitio.latitud || !sitio.longitud) return;
+
+          const marker = L.marker([sitio.latitud, sitio.longitud]).addTo(mapa);
+          marker.bindPopup(`
+            <strong>${sitio.nombre}</strong><br>
+            ${sitio.descripcion}<br>
+            <b>Dirección:</b> ${sitio.direccion}<br>
+            <b>Horario:</b> ${sitio.horario_apertura} - ${sitio.horario_cierre}<br>
+            <b>Tarifa:</b> $${sitio.tarifa}
+          `);
+        });
       })
-      .catch(err => console.error("Error cargando sitios:", err));
+      .catch((err) => {
+        console.error("❌ Error al cargar los sitios turísticos:", err);
+        alert("Error al cargar sitios turísticos. Consulta la consola.");
+      });
   </script>
 {% endblock %}
