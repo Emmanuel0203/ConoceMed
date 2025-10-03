@@ -8,6 +8,5 @@ load_dotenv()
 vistaAutenticacion = Blueprint('vistaAutenticacion', __name__, template_folder='../templates')
 
 @vistaAutenticacion.route("/")
-@login_required
 def index():
     return render_template("index.html", user=current_user)

@@ -37,6 +37,14 @@ header {
   z-index: 1000;
 }
 
+
+.dropdown-menu {
+  z-index: 5000 !important;
+}
+
+
+
+
 .nav-pills .nav-link.active {
   background-color: #ff5733 !important;
   /* fondo naranja */
