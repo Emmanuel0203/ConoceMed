@@ -1,12 +1,3 @@
-from flask import Blueprint, render_template
-from flask_login import login_required, current_user
-from dotenv import load_dotenv
-import os
-
-load_dotenv() 
-
-vistaAutenticacion = Blueprint('vistaAutenticacion', __name__, template_folder='../templates')
-
-@vistaAutenticacion.route("/")
-def index():
-    return render_template("index.html", user=current_user)
+"""
+Este archivo ha sido eliminado. La vista de autenticación y el endpoint raíz se gestionan ahora desde main.py.
+"""
