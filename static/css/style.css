@@ -9,7 +9,8 @@ html,
 body {
   height: 100%;
   scroll-behavior: smooth;
-  overflow: hidden;
+  overflow-y: auto; /* permite scroll vertical */
+  overflow-x: hidden; /* evita scroll horizontal */
   font-family: Arial, sans-serif;
 }
 
@@ -37,9 +38,24 @@ header {
   z-index: 1000;
 }
 
+/* Sidebar más corto solo para pruebas */
+#sidebar {
+  height: 300px;   /* en lugar de 100% */
+  overflow-y: auto; /* habilita scroll si hay muchos items */
+}
 
+
+/* AJUSTE PARA EL DROPDOWN DENTRO DEL SIDEBAR FIJO */
+/* Necesita un z-index mayor al del sidebar (1030) y al del header (1050) */
 .dropdown-menu {
-  z-index: 5000 !important;
+    /* Usamos un valor alto para garantizar que se apile por encima de todos */
+    z-index: 2000; /* o mayor que el sidebar */
+    
+    /* * Opcional, pero recomendado: Fuerza la posición estática o relativa
+     * para ayudar al menú a 'salir' del contenedor fijo del sidebar,
+     * especialmente si sigues usando data-bs-display="static".
+     */
+     position: absolute; 
 }
 
 
@@ -640,3 +656,5 @@ button:hover {
     height: 350px;
   }
 }
+
+

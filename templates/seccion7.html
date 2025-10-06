@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Sección 7 - ConoceMed{% endblock %}
+
+{% block content %}
+
+<!-- Sección ADMIN -->
+{% if current_user.is_authenticated %}
+<section class="vista" id="seccion7">
+  <div class="container">
+    <h2 class="text-center mb-4">Panel Administrativo</h2>
+    <p class="text-center">Aquí podrás gestionar los lugares sugeridos por la comunidad.</p>
+  </div>
+</section>
+{% endif %}
+
+
+{% endblock %}
