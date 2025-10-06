@@ -118,27 +118,26 @@ header {
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .contenido h1 {
-  position: absolute;
-  bottom: 390px;
   font-family: "Montserrat", sans-serif;
   font-weight: bold;
   font-size: 150px;
+  margin: 0 0 20px 0;
 }
 
 .contenido h2 {
-  position: absolute;
-  bottom: 560px;
   font-family: "Montserrat", sans-serif;
   font-size: 40px;
+  margin: 0 0 0px 0;
 }
 
 .contenido p {
-  position: absolute;
-  bottom: 320px;
   font-family: "Montserrat", sans-serif;
   font-size: 15px;
 }
