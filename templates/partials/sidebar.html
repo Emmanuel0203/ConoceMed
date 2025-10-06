@@ -1,11 +1,14 @@
-<div class="d-flex flex-column flex-shrink-0 p-3 bg-dark position-fixed h-100" style="width: 280px; z-index: 1030; top: 0; left: 0;">
+<div id="sidebar" 
+     class="d-flex flex-column flex-shrink-0 p-3 bg-dark position-fixed" 
+     style="width: 280px; height: 70vh; z-index: 1030; top: 0; left: 0;">
+
   <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none">
     <i class="bi bi-bootstrap fs-3 me-2"></i>
     <span class="fs-4"></span>
   </a>
   <hr>
 
-  <ul class="nav nav-pills flex-column mb-auto  d-flex gap-2 fs-3">
+  <ul class="nav nav-pills flex-column mb-auto d-flex gap-2 fs-3">
     <li>
       <a href="#seccion1" class="nav-link" style="margin-top: 110px;">
         <i class="bi bi-house-door me-2"></i> INICIO
@@ -36,19 +39,33 @@
         <i class="bi bi-people me-2"></i> DATOS
       </a>
     </li>
+    {% if current_user.is_authenticated %}
+    <li>
+      <a href="#seccion7" class="nav-link">
+        <i class="bi bi-people me-2"></i> ADMIN
+      </a>
+    </li>
+    {% endif %}
   </ul>
+
   <hr>
-  <div class="dropdown">
-    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+
+  <!-- Dropdown con data-bs-display="static" -->
+  <div class="dropdown"> 
+    <a href="javascript:void(0)" 
+      class="d-flex align-items-center text-decoration-none dropdown-toggle text-white" 
+      id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
       <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
       <strong>mdo</strong>
     </a>
-    <ul class="dropdown-menu text-small shadow">
-      <li><a class="dropdown-item" href="#">New project...</a></li>
-      <li><a class="dropdown-item" href="#">Settings</a></li>
-      <li><a class="dropdown-item" href="#">Profile</a></li>
-      <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item" href="#">Sign out</a></li>
+    <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="userDropdown">
+      {% if not current_user.is_authenticated %}
+        <li><a class="dropdown-item" href="{{ url_for('vistaLogin.login') }}">LOGIN</a></li>
+      {% endif %}
+      {% if current_user.is_authenticated %}
+        <li><a class="dropdown-item" href="{{ url_for('vistaLogin.logout') }}">LOGOUT</a></li>
+      {% endif %}
     </ul>
+  </div>
   </div>
 </div>
