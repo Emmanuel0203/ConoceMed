@@ -9,7 +9,7 @@
   <!-- Estilos personalizados -->
   <style>
     html {
-      scroll-behavior: smooth; /* Scroll suave */
+      scroll-behavior: smooth;
     }
 
     body {
@@ -31,7 +31,6 @@
 
     a button,
     button {
-
       background-color: #154360;
       color: white;
       border: none;
@@ -54,6 +53,52 @@
       border-radius: 10px;
       border: 2px solid #154360;
     }
+
+    /* Mini pestaña (panel lateral) */
+    #infoPanel {
+      position: fixed;
+      top: 0;
+      right: -520px;
+      width: 500px;
+      height: 100%;
+      background: rgb(231, 231, 231);
+      box-shadow: -3px 0 15px rgba(0,0,0,0.3);
+      padding: 20px;
+      overflow-y: auto;
+      transition: right 0.3s ease;
+      z-index: 1000;
+    }
+
+    #infoPanel.show {
+      right: 0;
+    }
+
+    #infoPanel h2 {
+      margin-top: 0;
+      color: #154360;
+    }
+
+    #infoPanel .closeBtn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: transparent; /* ← sin fondo */
+      color: #154360;           /* ← color de la X (ajústalo si quieres otro) */
+      border: none;             /* ← sin borde */
+      border-radius: 0;         /* ← sin esquinas redondeadas */
+      font-size: 24px;          /* ← tamaño de la X */
+      cursor: pointer;
+    }
+
+    #infoPanel img,
+    #infoPanel video,
+    #infoPanel iframe {
+      width: 100%;
+      max-height: 300px;
+      margin-top: 15px;
+      border-radius: 8px;
+      object-fit: contain;
+    }
   </style>
 {% endblock %}
 
@@ -68,7 +113,13 @@
     <!-- Mapa interactivo -->
     <div id="map"></div>
 
-    <!-- Botón de volver a la sección 2 -->
+    <!-- Panel lateral -->
+    <div id="infoPanel">
+      <button class="closeBtn" title="Cerrar">&times;</button>
+      <div id="infoContent"></div>
+    </div>
+
+    <!-- Botón de volver -->
     <div style="margin-top: 20px;">
       <a href="{{ url_for('index') }}#seccion2">
         <button>Volver</button>
@@ -78,58 +129,91 @@
 {% endblock %}
 
 {% block scripts %}
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <script>
-    // Inicializar el mapa centrado en Medellín
     const mapa = L.map('map').setView([6.2518, -75.5636], 13);
 
-    // Capa base
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(mapa);
 
-    // UUID de la categoría "Patrimonio y Cultura"
     const CATEGORIA_PATRIMONIO_UUID = "4c96e8cc-bf91-4db6-9640-687eaf2942c0";
 
-    // Obtener sitios desde la API
-    fetch("http://localhost:5031/api/sitio_turistico")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("✅ Datos recibidos de la API:", data);
+    const infoPanel = document.getElementById('infoPanel');
+    const infoContent = document.getElementById('infoContent');
+    const closeBtn = document.querySelector('.closeBtn');
 
-        if (!data.datos || !Array.isArray(data.datos)) {
-          console.warn("⚠️ La API no devolvió una lista de sitios válida.");
-          return;
-        }
+    closeBtn.addEventListener('click', () => {
+      infoPanel.classList.remove('show');
+    });
 
-        const sitiosFiltrados = data.datos.filter(
-          (sitio) => sitio.fkidcategoria_turistica === CATEGORIA_PATRIMONIO_UUID
-        );
+    function renderMedia(url) {
+      if (!url) return '';
+      const cleanUrl = url.split('?')[0].toLowerCase();
+      const ext = cleanUrl.split('.').pop();
 
-        if (sitiosFiltrados.length === 0) {
-          alert("⚠️ No hay sitios para la categoría 'Patrimonio y Cultura'.");
-          return;
-        }
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+      const videoExtensions = ['mp4', 'webm', 'ogg'];
 
-        // Agregar marcadores al mapa
-        sitiosFiltrados.forEach((sitio) => {
-          if (!sitio.latitud || !sitio.longitud) return;
+      if (imageExtensions.includes(ext)) {
+        return `<img src="${url}" alt="Imagen">`;
+      } else if (videoExtensions.includes(ext)) {
+        return `
+          <video controls>
+            <source src="${url}" type="video/${ext}">
+            Tu navegador no soporta el video.
+          </video>`;
+      } else {
+        return `<iframe src="${url}"></iframe>`;
+      }
+    }
 
-          const marker = L.marker([sitio.latitud, sitio.longitud]).addTo(mapa);
-          marker.bindPopup(`
-            <strong>${sitio.nombre}</strong><br>
-            ${sitio.descripcion}<br>
-            <b>Dirección:</b> ${sitio.direccion}<br>
-            <b>Horario:</b> ${sitio.horario_apertura} - ${sitio.horario_cierre}<br>
-            <b>Tarifa:</b> $${sitio.tarifa}
-          `);
+    // Cargar y procesar los datos
+    Promise.all([
+      fetch("http://localhost:5031/api/sitio_turistico").then(res => res.json()),
+      fetch("http://localhost:5031/api/sitio_multi").then(res => res.json()),
+      fetch("http://localhost:5031/api/multimedia").then(res => res.json())
+    ])
+    .then(([sitiosRes, sitioMultiRes, multimediaRes]) => {
+      const sitios = sitiosRes.datos || [];
+      const sitioMulti = sitioMultiRes.datos || [];
+      const multimedia = multimediaRes.datos || [];
+
+      const sitiosFiltrados = sitios.filter(s => s.fkidcategoria_turistica === CATEGORIA_PATRIMONIO_UUID);
+
+      if (sitiosFiltrados.length === 0) {
+        alert("⚠️ No hay sitios para la categoría 'Patrimonio y Cultura'.");
+        return;
+      }
+
+      sitiosFiltrados.forEach(sitio => {
+        if (!sitio.latitud || !sitio.longitud) return;
+
+        const marker = L.marker([sitio.latitud, sitio.longitud]).addTo(mapa);
+
+        marker.on('click', () => {
+          const relacion = sitioMulti.find(r => r.fkidsitio_turistico === sitio.idsitio_turistico);
+          const multimediaObj = relacion ? multimedia.find(m => m.idmultimedia === relacion.fkidmultimedia) : null;
+          const mediaHtml = multimediaObj ? renderMedia(multimediaObj.url) : '';
+
+          const html = `
+            <h2>${sitio.nombre}</h2>
+            <p>${sitio.descripcion}</p>
+            <p><strong>Dirección:</strong> ${sitio.direccion}</p>
+            <p><strong>Horario:</strong> ${sitio.horario_apertura} - ${sitio.horario_cierre}</p>
+            <p><strong>Tarifa:</strong> $${sitio.tarifa}</p>
+            ${mediaHtml}
+          `;
+
+          infoContent.innerHTML = html;
+          infoPanel.classList.add('show');
         });
-      })
-      .catch((err) => {
-        console.error("❌ Error al cargar los sitios turísticos:", err);
-        alert("Error al cargar sitios turísticos. Consulta la consola.");
       });
+    })
+    .catch(err => {
+      console.error("❌ Error al cargar los datos:", err);
+      alert("Error al cargar sitios turísticos o multimedia.");
+    });
   </script>
 {% endblock %}

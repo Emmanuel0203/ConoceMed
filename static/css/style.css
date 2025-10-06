@@ -9,7 +9,7 @@ html,
 body {
   height: 100%;
   scroll-behavior: smooth;
-  overflow: hidden;
+  
   font-family: Arial, sans-serif;
 }
 
@@ -50,6 +50,10 @@ header {
   color: white;
   /* texto naranja */
   border: 1px solid white;
+}
+
+.dropdown-menu {
+  z-index: 1200 !important;
 }
 
 /* ==== CONTENEDOR GENERAL ==== */
@@ -127,7 +131,7 @@ header {
 }
 
 #seccion3 {
-  background-color: #e6f9ed;
+  background-color: #8d8989;
   padding: 0;
   display: flex;
   justify-content: center;
@@ -311,7 +315,7 @@ header {
 
 .folleto-contenido .cara {
   flex: 1;
-  background-color: white;
+  background-color: rgb(156, 138, 138);
   padding: 2rem;
   text-align: center;
   display: flex;
