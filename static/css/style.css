@@ -9,7 +9,7 @@ html,
 body {
   height: 100%;
   scroll-behavior: smooth;
-  overflow: hidden;
+  
   font-family: Arial, sans-serif;
 }
 
@@ -50,6 +50,10 @@ header {
   color: white;
   /* texto naranja */
   border: 1px solid white;
+}
+
+.dropdown-menu {
+  z-index: 1200 !important;
 }
 
 /* ==== CONTENEDOR GENERAL ==== */
@@ -127,7 +131,7 @@ header {
 }
 
 #seccion3 {
-  background-color: #e6f9ed;
+  background-color: #8d8989;
   padding: 0;
   display: flex;
   justify-content: center;
@@ -311,7 +315,7 @@ header {
 
 .folleto-contenido .cara {
   flex: 1;
-  background-color: white;
+  background-color: rgb(156, 138, 138);
   padding: 2rem;
   text-align: center;
   display: flex;
@@ -327,12 +331,12 @@ header {
 }
 
 .folleto-contenido .cara:nth-child(2) {
-  background-color: #76c495;
+  background-color: #b6c4bc;
   /* verde claro */
 }
 
 .folleto-contenido .cara:nth-child(3) {
-  background-color: #ffe6f0;
+  background-color: #f0e2e7;
   /* rosa claro */
 }
 
@@ -508,7 +512,7 @@ header {
 }
 
 #seccion5 .declarar-formulario h2 {
-  color: #bbeaee;
+  color: #909797;
   margin-bottom: 1rem;
   font-weight: 700;
   font-size: 1.8rem;
