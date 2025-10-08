@@ -157,8 +157,40 @@ header {
 }
 
 #seccion4 {
-  background-color: #e6f9ed;
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  /* evita que el blur se salga */
 }
+
+#seccion4::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* asegura que solo ocupe la sección */
+  background-image: url("../images/medellin.jpg");
+  background-size: cover;
+  background-position: center;
+  filter: blur(3px);
+  /* nivel de desenfoque */
+  transform: scale(1.1);
+  /* evita bordes del blur */
+  z-index: 0;
+  /* detrás del contenido */
+}
+
+#seccion4>* {
+  position: relative;
+  z-index: 1;
+  /* contenido visible por encima */
+}
+
+
+
+
 
 /* ==== TARJETAS DE SECCIÓN 2 (CATEGORÍAS) ==== */
 .titulo-sec2 {
@@ -450,7 +482,10 @@ header {
 .declarar-animacion img {
   max-width: 100%;
   height: auto;
-  border-radius: 12px;
+}
+
+#muneco {
+  z-index: 3;
 }
 
 .declarar-formulario {

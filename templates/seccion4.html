@@ -3,12 +3,14 @@
 {% block title %}Sección 4 - ConoceMed{% endblock %}
 
 {% block content %}
+
+
 <section class="vista" id="seccion4">
   <div class="declarar-contenedor">
 
     <!-- Animación o imagen a la izquierda -->
-    <div class="declarar-animacion">
-      <img src="static/images/animacion.gif" alt="Animación" />
+    <div class="declarar-animacion" id="muneco" >
+      <img src="static/images/muneco.gif" alt="Animación" />
       <!-- Puedes reemplazar el src con tu animación real -->
     </div>
 
@@ -16,7 +18,7 @@
     <div class="declarar-formulario">
       <h2>DECLARA UN LUGAR</h2>
       <p>Aquí puedes recomendar un lugar que debería estar en la app.</p>
-      
+
       <form>
         <input type="text" placeholder="Nombre y Apellido *" required />
         <input type="email" placeholder="Correo Electrónico *" required />
@@ -29,6 +31,31 @@
     </div>
 
   </div>
-</section>
+
+  
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const muneco = lottie.loadAnimation({
+      container: document.getElementById("muneco"),
+      renderer: "svg",
+      autoplay: true,
+      loop: true,
+      path: "/static/images/munecoo.json"
+    })
+
+    muneco.addEventListener('DOMLoaded', () => {
+      console.log('Animación cargada completamente');
+      muneco.goToAndStop(0); // por ejemplo, detener en el frame inicial
+    })
+
+    document.getElementById("muneco").addEventListener("click", function () {
+      muneco.stop()
+      muneco.play()
+    })
+
+    console.log("Contenedor encontrado:", document.getElementById("muneco"));
+  </script>
 {% endblock %}
 
