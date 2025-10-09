@@ -19,15 +19,49 @@
       <h2>DECLARA UN LUGAR</h2>
       <p>Aquí puedes recomendar un lugar que debería estar en la app.</p>
 
-      <form>
-        <input type="text" placeholder="Nombre y Apellido *" required />
-        <input type="email" placeholder="Correo Electrónico *" required />
-        <input type="text" placeholder="Nombre del Lugar *" required />
-        <input type="text" placeholder="Dirección del Lugar *" required />
-        <textarea placeholder="Descripción *" rows="4" required></textarea>
-        <input type="file" required />
-        <button type="submit">ENVIAR</button>
+      <form id="formSugerirLugar" method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+
+        {{ form.nombre.label }}  
+        {{ form.nombre(class="form-control", placeholder="Nombre del lugar *") }}
+
+        {{ form.direccion.label }}  
+        {{ form.direccion(class="form-control", placeholder="Dirección *") }}
+
+        {{ form.latitud.label }}  
+        {{ form.latitud(class="form-control", placeholder="Latitud *") }}
+
+        {{ form.longitud.label }}  
+        {{ form.longitud(class="form-control", placeholder="Longitud *") }}
+
+        {{ form.descripcion.label }}  
+        {{ form.descripcion(class="form-control", placeholder="Descripción *", rows="4") }}
+
+        {{ form.horario_apertura.label }}
+        {{ form.horario_apertura(class="form-control", placeholder="Horario de apertura *") }}
+
+        {{ form.horario_cierre.label }}
+        {{ form.horario_cierre(class="form-control", placeholder="Horario de cierre *") }}
+
+        {{ form.tarifa.label }}
+        {{ form.tarifa(class="form-control", placeholder="Tarifa *") }}
+        
+        {{ form.idLocalidad.label }}
+        {{ form.idLocalidad(class="form-control") }}
+
+        {{ form.idCategoria_Turistica.label }}
+        {{ form.idCategoria_Turistica(class="form-control") }}
+
+        <!-- Campo de archivos -->
+        <label for="archivos">Sube imágenes o videos del lugar:</label>
+        <input type="file" name="archivos" id="archivos" class="form-control" multiple accept="image/*,video/*">
+
+        {{ form.submit(class="btn btn-primary", value="Enviar sugerencia") }}
       </form>
+
+      <!-- Contenedor de mensajes -->
+      <div id="mensaje-resultado" class="mensaje"></div>
+
     </div>
 
   </div>
@@ -57,5 +91,30 @@
 
     console.log("Contenedor encontrado:", document.getElementById("muneco"));
   </script>
-{% endblock %}
 
+<!-- Script para enviar el formulario sin recargar -->
+<script>
+document.getElementById("formSugerirLugar").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const formData = new FormData(this);
+  
+  const response = await fetch("{{ url_for('vistaSugerido.sugerir_lugar') }}", {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await response.json();
+
+  const mensaje = document.getElementById("mensaje-resultado");
+  if (data.success) {
+    mensaje.textContent = "✅ Lugar enviado con éxito. ¡Gracias por tu aporte!";
+    mensaje.style.color = "green";
+    this.reset();
+  } else {
+    mensaje.textContent = "❌ Error al enviar. Revisa los campos.";
+    mensaje.style.color = "red";
+  }
+});
+</script>
+{% endblock %}

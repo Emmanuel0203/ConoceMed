@@ -1,3 +1,36 @@
+/* Envolver todo el contenido visual de seccion1 en .fondo-video-area para alinear con sidebar */
+.fondo-video-area {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.fondo-video-area .video-fondo,
+.fondo-video-area .layer,
+.fondo-video-area .contenido {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+.fondo-video-area .video-fondo {
+  object-fit: cover;
+  z-index: -1;
+}
+.fondo-video-area .layer {
+  background-color: black;
+  opacity: 0.4;
+  z-index: 0;
+}
+.fondo-video-area .contenido {
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
 /* ==== RESET BÁSICO ==== */
 * {
   margin: 0;
@@ -9,8 +42,8 @@ html,
 body {
   height: 100%;
   scroll-behavior: smooth;
-  overflow: hidden;
   font-family: Arial, sans-serif;
+  overflow-x: hidden !important;
 }
 
 /* ==== HEADER Y FOOTER FIJOS ==== */
@@ -37,6 +70,36 @@ header {
   z-index: 1000;
 }
 
+/* Sidebar altura completa y sin scroll innecesario */
+#sidebar {
+  height: 100vh;
+  min-height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  z-index: 1030;
+}
+
+
+/* AJUSTE PARA EL DROPDOWN DENTRO DEL SIDEBAR FIJO */
+/* Necesita un z-index mayor al del sidebar (1030) y al del header (1050) */
+.dropdown-menu {
+    /* Usamos un valor alto para garantizar que se apile por encima de todos */
+    z-index: 2000; /* o mayor que el sidebar */
+    
+    /* * Opcional, pero recomendado: Fuerza la posición estática o relativa
+     * para ayudar al menú a 'salir' del contenedor fijo del sidebar,
+     * especialmente si sigues usando data-bs-display="static".
+     */
+     position: absolute; 
+}
+
+
+
+
 .nav-pills .nav-link.active {
   background-color: #ff5733 !important;
   /* fondo naranja */
@@ -52,33 +115,40 @@ header {
   border: 1px solid white;
 }
 
+.dropdown-menu {
+  z-index: 1200 !important;
+}
+
 /* ==== CONTENEDOR GENERAL ==== */
+/* Contenedor principal: sin doble scroll, margen izquierdo para sidebar */
 #contenedor-vistas {
+  min-height: 100vh;
   height: 100vh;
-  overflow-y: scroll;
+  max-height: none;
+  overflow-y: auto;
   scroll-snap-type: y proximity;
   -webkit-overflow-scrolling: touch;
-
-  /* espacio reservado para que el contenido no quede oculto */
-
-  /*padding-top: 60px;*/
-  /* coincide con la altura del header */
-  padding-bottom: 50px;
-  /* coincide con la altura del footer */
+  padding-bottom: 0;
+  margin-left: 280px;
+  width: calc(100vw - 280px);
+  box-sizing: border-box;
+  position: relative;
+  overflow-x: hidden !important;
 }
 
 .vista {
-  scroll-snap-align: start;
+  min-height: 100vh;
   height: 100vh;
+  max-height: none;
+  min-width: 0;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   padding: 2rem;
-  /*opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;*/
-
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .vista.visible {
@@ -90,6 +160,14 @@ header {
 #seccion1 {
   position: relative;
   overflow: hidden;
+  width: 100vw;
+  min-height: 100vh;
+  max-height: none;
+  display: flex;
+  align-items: stretch;
+  margin-left: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .video-fondo {
@@ -101,6 +179,8 @@ header {
   object-fit: cover;
   z-index: -1;
 }
+
+
 
 .layer {
   position: absolute;
@@ -115,7 +195,9 @@ header {
 .contenido {
   position: absolute;
   z-index: 1;
-  width: 100%;
+  top: 0;
+  left: 0; /* ❗ ya no necesita desplazamiento */
+  width: 100%; /* ocupa todo el espacio del contenedor */
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -123,6 +205,7 @@ header {
   align-items: center;
   text-align: center;
 }
+
 
 .contenido h1 {
   font-family: "Montserrat", sans-serif;
@@ -149,7 +232,7 @@ header {
 }
 
 #seccion3 {
-  background-color: #e6f9ed;
+  background-color: #8d8989;
   padding: 0;
   display: flex;
   justify-content: center;
@@ -366,7 +449,7 @@ header {
 
 .folleto-contenido .cara {
   flex: 1;
-  background-color: white;
+  background-color: rgb(156, 138, 138);
   padding: 2rem;
   text-align: center;
   display: flex;
@@ -382,12 +465,12 @@ header {
 }
 
 .folleto-contenido .cara:nth-child(2) {
-  background-color: #76c495;
+  background-color: #b6c4bc;
   /* verde claro */
 }
 
 .folleto-contenido .cara:nth-child(3) {
-  background-color: #ffe6f0;
+  background-color: #f0e2e7;
   /* rosa claro */
 }
 
@@ -465,11 +548,13 @@ header {
 
 .declarar-contenedor {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   gap: 2rem;
   width: 100%;
   max-width: 1200px;
+  margin: 0 auto;
+  min-height: 80vh;
 }
 
 .declarar-animacion {
@@ -489,12 +574,19 @@ header {
 }
 
 .declarar-formulario {
-  flex: 1;
+  flex: 1 1 400px;
+  max-width: 500px;
   background-color: white;
   color: black;
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  min-width: 300px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .declarar-formulario h2 {
@@ -566,7 +658,7 @@ header {
 }
 
 #seccion5 .declarar-formulario h2 {
-  color: #bbeaee;
+  color: #909797;
   margin-bottom: 1rem;
   font-weight: 700;
   font-size: 1.8rem;
@@ -646,7 +738,6 @@ button:hover {
     flex: 0 0 100%;
     max-width: 400px;
     margin-bottom: 2rem;
-
   }
 
   .folleto-contenido {
@@ -658,22 +749,20 @@ button:hover {
   .folleto-contenido .cara {
     width: 100%;
     padding: 1rem;
-
-  }
-
-  .folleto-contenido {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .folleto-contenido .cara {
-    width: 100%;
-    padding: 1rem;
   }
 
   .declarar-contenedor {
     flex-direction: column;
     gap: 1rem;
+    min-height: unset;
+    max-width: 98vw;
+  }
+
+  .declarar-formulario {
+    max-width: 98vw;
+    min-width: unset;
+    width: 100%;
+    margin: 0 auto;
   }
 }
 
