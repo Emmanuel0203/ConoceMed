@@ -9,9 +9,8 @@
   <div class="declarar-contenedor">
 
     <!-- Animación o imagen a la izquierda -->
-    <div class="declarar-animacion" id="muneco" >
-      <img src="static/images/muneco.gif" alt="Animación" />
-      <!-- Puedes reemplazar el src con tu animación real -->
+    <div class="declarar-animacion" id="muneco">
+
     </div>
 
     <!-- Formulario a la derecha -->
@@ -22,19 +21,19 @@
       <form id="formSugerirLugar" method="POST" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
 
-        {{ form.nombre.label }}  
+        {{ form.nombre.label }}
         {{ form.nombre(class="form-control", placeholder="Nombre del lugar *") }}
 
-        {{ form.direccion.label }}  
+        {{ form.direccion.label }}
         {{ form.direccion(class="form-control", placeholder="Dirección *") }}
 
-        {{ form.latitud.label }}  
+        {{ form.latitud.label }}
         {{ form.latitud(class="form-control", placeholder="Latitud *") }}
 
-        {{ form.longitud.label }}  
+        {{ form.longitud.label }}
         {{ form.longitud(class="form-control", placeholder="Longitud *") }}
 
-        {{ form.descripcion.label }}  
+        {{ form.descripcion.label }}
         {{ form.descripcion(class="form-control", placeholder="Descripción *", rows="4") }}
 
         {{ form.horario_apertura.label }}
@@ -45,7 +44,7 @@
 
         {{ form.tarifa.label }}
         {{ form.tarifa(class="form-control", placeholder="Tarifa *") }}
-        
+
         {{ form.idLocalidad.label }}
         {{ form.idLocalidad(class="form-control") }}
 
@@ -66,55 +65,56 @@
 
   </div>
 
-  
+
 {% endblock %}
 
 {% block scripts %}
-<script>
-    const muneco = lottie.loadAnimation({
-      container: document.getElementById("muneco"),
-      renderer: "svg",
-      autoplay: true,
-      loop: true,
-      path: "/static/images/munecoo.json"
-    })
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const container = document.getElementById("muneco");
 
-    muneco.addEventListener('DOMLoaded', () => {
-      console.log('Animación cargada completamente');
-      muneco.goToAndStop(0); // por ejemplo, detener en el frame inicial
-    })
+      if (!container) {
+        console.error("❌ No se encontró el contenedor #muneco");
+        return;
+      }
 
-    document.getElementById("muneco").addEventListener("click", function () {
-      muneco.stop()
-      muneco.play()
-    })
+      const muneco = lottie.loadAnimation({
+        container: container,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "{{ url_for('static', filename='images/paisa.json') }}"
+      });
 
-    console.log("Contenedor encontrado:", document.getElementById("muneco"));
+      muneco.addEventListener("DOMLoaded", () => {
+        console.log("✅ Animación cargada completamente");
+      });
+    });
   </script>
 
-<!-- Script para enviar el formulario sin recargar -->
-<script>
-document.getElementById("formSugerirLugar").addEventListener("submit", async function(e) {
-  e.preventDefault();
+  <!-- Script para enviar el formulario sin recargar -->
+  <script>
+    document.getElementById("formSugerirLugar").addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-  const formData = new FormData(this);
-  
-  const response = await fetch("{{ url_for('vistaSugerido.sugerir_lugar') }}", {
-    method: "POST",
-    body: formData
-  });
+      const formData = new FormData(this);
 
-  const data = await response.json();
+      const response = await fetch("{{ url_for('vistaSugerido.sugerir_lugar') }}", {
+        method: "POST",
+        body: formData
+      });
 
-  const mensaje = document.getElementById("mensaje-resultado");
-  if (data.success) {
-    mensaje.textContent = "✅ Lugar enviado con éxito. ¡Gracias por tu aporte!";
-    mensaje.style.color = "green";
-    this.reset();
-  } else {
-    mensaje.textContent = "❌ Error al enviar. Revisa los campos.";
-    mensaje.style.color = "red";
-  }
-});
-</script>
-{% endblock %}
+      const data = await response.json();
+
+      const mensaje = document.getElementById("mensaje-resultado");
+      if (data.success) {
+        mensaje.textContent = "✅ Lugar enviado con éxito. ¡Gracias por tu aporte!";
+        mensaje.style.color = "green";
+        this.reset();
+      } else {
+        mensaje.textContent = "❌ Error al enviar. Revisa los campos.";
+        mensaje.style.color = "red";
+      }
+    });
+  </script>
+  {% endblock %}
