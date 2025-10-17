@@ -1,0 +1,145 @@
+/* ==== LOGIN TIPO REVISTA ==== */
+
+/* Estilo de fondo y animación para todo el body */
+body {
+  background: url("/static/images/fondo1.png") no-repeat center center fixed;
+  background-size: cover;
+  animation: gradientShift 15s ease infinite;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Orbitron', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Capa de efecto radial */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Título principal */
+h2 {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 1.8em;
+  color: white;
+  text-shadow:
+    3px 3px 0 rgba(0, 0, 0, 0.3),
+    -1px -1px 0 rgba(255, 255, 255, 0.2);
+  margin-bottom: 30px;
+  z-index: 1;
+}
+
+/* Formulario centrado en una card */
+form {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.5);
+  padding: 25px 40px;
+  max-width: 500px;
+  width: 90%;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+/* Estilos para párrafos que contienen label+input */
+form p {
+  margin-bottom: 20px;
+  color: #2d3748;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
+  font-size: 1.2em;
+  letter-spacing: 1px;
+}
+
+/* Inputs estilo videojuego */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="submit"],
+button {
+  width: 100%;
+  padding: 12px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.75em;
+  border: 2px solid #4facfe;
+  border-radius: 8px;
+  background-color: rgba(31, 41, 55, 0.8);
+  color: white;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-transform: uppercase;
+  user-select: none;
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.3),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
+  color: #9ca3af;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+  border-color: #00f2fe;
+  box-shadow: 0 0 10px #00f2fe;
+  outline: none;
+}
+
+input[type="submit"]:hover,
+button:hover {
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.5),
+    inset 0 -5px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Mensajes flash estilo pixel */
+div {
+  margin-top: 20px;
+  color: #ee5a6f;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.7em;
+  text-align: center;
+  text-shadow: 0 0 5px #ee5a6f;
+  z-index: 1;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  form {
+    padding: 20px;
+  }
+
+  h2 {
+    font-size: 1.3em;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="submit"],
+  button {
+    font-size: 0.65em;
+  }
+}

@@ -1,0 +1,215 @@
+/* ==== SECCIÓN 5: PRESENTACION DE INTEGRANTES ==== */
+
+.declarar-formulario1 {
+  background: #085385 ;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+
+#seccion5 {
+  background: url("../images/fondo1.png") no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
+  padding: 60px 20px;
+  font-family: 'Orbitron', sans-serif;
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+#seccion5::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+
+.level-badge {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+  color: white;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.7em;
+  padding: 10px 20px;
+  border-radius: 50px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: center;
+  margin-bottom: 30px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.pixel-title {
+  font-family: 'Press Start 2P', cursive;
+  text-align: center;
+  color: white;
+  font-size: 1.3em;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+  margin-bottom: 10px;
+}
+
+.subtitulo {
+  color: #0a0a0a !important; 
+}
+.retro-text {
+  font-family: 'Orbitron', sans-serif;
+  text-align: center;
+  color: #e6e0e0;
+  margin-bottom: 40px;
+  font-size: 1em;
+}
+
+.ventanas-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.ventana {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(255, 255, 255, 0.5);
+  width: 280px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  overflow: hidden;
+}
+
+.ventana:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+}
+
+.ventana-barra {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  padding: 10px;
+  display: flex;
+  gap: 6px;
+}
+
+.ventana-barra .btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.roja { background: #383636; }
+.amarilla { background: #4e4d4c; }
+.verde { background: #7a807b; }
+
+.ventana-contenido {
+  padding: 15px;
+  text-align: center;
+}
+
+.ventana-contenido h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1em;
+  color: #111;
+  margin-bottom: 5px;
+}
+
+.descripcion {
+  color: #555;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+
+.game-frame {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3),
+              inset 0 0 0 3px rgba(255, 255, 255, 0.3);
+  transition: transform 0.3s ease;
+  max-width: 180px;
+  margin: 0 auto;
+}
+
+.game-frame:hover {
+  transform: scale(1.05);
+}
+
+.ventana-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.7);
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-contenido {
+  background-color: #fffbea;
+  margin: auto;
+  padding: 20px;
+  border: 4px solid #333;
+  border-radius: 15px;
+  box-shadow: 8px 8px 0px #000;
+  max-width: 90%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.modal-contenido img {
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
+.cerrar {
+  color: #333;
+  position: absolute;
+  top: 12px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.cerrar:hover {
+  color: #ff5f57;
+}
+
+@media (max-width: 768px) {
+  .ventana {
+    width: 90%;
+    max-width: 320px;
+  }
+}

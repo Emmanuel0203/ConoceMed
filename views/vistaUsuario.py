@@ -13,7 +13,7 @@ Endpoints disponibles:
 """
 
 from flask import Blueprint, jsonify, request
-from controllers.controlUsuario import ControlUsuario
+from controllers.ControlUsuario import ControlUsuario
 
 # Definición del Blueprint que agrupa las rutas de usuario
 vistaUsuario = Blueprint("vistaUsuario", __name__)

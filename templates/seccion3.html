@@ -1,52 +1,244 @@
 {% extends "base.html" %}
-
 {% block title %}Sección 1 - ConoceMed{% endblock %}
 
 {% block content %}
 
-<section class="vista folleto" id="seccion3">
-  <div class="folleto-contenido">
 
-    <!-- Primera cara -->
-    <div class="cara cara1">
-      <h3>¿Qué es?</h3>
-      <p>
-        Nuestra aplicación web es una herramienta interactiva diseñada para facilitar el turismo en Medellín. A través de un mapa dinámico, los usuarios pueden explorar los principales puntos turísticos de la ciudad por categoría, descubrir lugares culturales, gastronómicos y hoteleros, haciendo que la experiencia de recorrer Medellín sea mucho más fácil y enriquecedora, tanto para visitantes como para locales.
-      </p>
+<!-- Tipografías estilo videojuego -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/seccion3.css') }}">
+
+<section class="vista revista" id="seccion3">
+  <div class="revista-contenido" id="revista-contenido">
+
+    <!-- CARA 1 -->
+    <div class="cara estilo-juego" id="cara1">
+      <div class="level-badge">NIVEL 3</div>
       
-      <h3>¿Por qué?</h3>
-      <p>
-        Una aplicación web con mapa interactivo facilita a los turistas explorar Medellín de forma más cómoda y segura. Permite ubicar sitios turísticos, restaurantes, eventos y rutas de transporte en tiempo real, mejorando su experiencia. Además, impulsa el turismo en zonas menos conocidas y refuerza la imagen de Medellín como una ciudad moderna, innovadora y acogedora.
-      </p>
-    </div>
+      <div class="game-card">
+        <div class="card-header">
+          <h2 class="pixel-title">¿Qué es?</h2>
+        </div>
+        <div class="card-content">
+          <div class="content-section">
+            <div class="text-content">
+              <p>
+                Nuestra aplicación web es una herramienta interactiva diseñada para facilitar el turismo en Medellín. A través de un mapa dinámico, los usuarios pueden explorar los principales puntos turísticos de la ciudad por categoría, descubrir lugares culturales, gastronómicos y hoteleros, haciendo que la experiencia de recorrer Medellín sea mucho más fácil y enriquecedora, tanto para visitantes como para locales.
+              </p>
+            </div>
+            <div class="image-content">
+              <div class="game-frame">
+                <img src="{{ url_for('static', filename='images/medellin.jpg') }}" alt="Imagen 1">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <!-- Segunda cara -->
-    <div class="cara cara2">
-      <div class="polaroid-container">
-        <div class="polaroid">
-          <img src="{{ url_for('static', filename='images/imagen1.jpg') }}" alt="Lugar 1">
-          <div class="caption">Lugar 1</div>
+      <div class="game-card">
+        <div class="card-header">
+          <h2 class="pixel-title">¿Por qué?</h2>
         </div>
-        <div class="polaroid">
-          <img src="{{ url_for('static', filename='images/imagen2.jpg') }}" alt="Lugar 2">
-          <div class="caption">Lugar 2</div>
-        </div>
-        <div class="polaroid">
-          <img src="{{ url_for('static', filename='images/imagen3.jpg') }}" alt="Lugar 3">
-          <div class="caption">Lugar 3</div>
+        <div class="card-content">
+          <div class="content-section reverse">
+            <div class="image-content">
+              <div class="game-frame">
+                <img src="{{ url_for('static', filename='images/medellin1.jpg') }}" alt="Imagen 2">
+              </div>
+            </div>
+            <div class="text-content">
+              <p>
+                Una aplicación web con mapa interactivo facilita a los turistas explorar Medellín de forma más cómoda y segura. Permite ubicar sitios turísticos, restaurantes, eventos y rutas de transporte en tiempo real, mejorando su experiencia. Además, impulsa el turismo en zonas menos conocidas y refuerza la imagen de Medellín como una ciudad moderna, innovadora y acogedora.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Tercera cara -->
-    <div class="cara cara3">
-      <div class="icono">🚀</div>
-      <h3>¿Cómo funciona?</h3>
-      <p>
-        El usuario navega por un mapa interactivo con filtros por categorías (hoteleria, gastronomía, historia) y puede declarar o sugerir nuevos lugares para enriquecer la comunidad, haciendo del turismo una experiencia personalizada y participativa.
-      </p>
-    </div>
+    <!-- CARA 2 -->
+      <div class="cara estilo-juego" id="cara2">
+        <div class="level-badge">NIVEL 3</div>
 
+        <div class="achievement-unlock">
+          <div class="unlock-icon">🏆</div>
+          <h3 class="pixel-title">Historia Desbloqueada</h3>
+        </div>
+
+        <div class="gallery-grid">
+          {% for i in range(1,6) %}
+          {% set fuente = [
+            'www.eltiempo.com',
+            'www.colombiamoda.com',
+            'www.grupo-epm.com',
+            'www.fiestadellibroylacultura.com',
+            'www.medellin.gov.co'
+          ][i-1] %}
+          <div class="gallery-item">
+            <!-- TÍTULO Y SUBTÍTULO ENCIMA DE LA IMAGEN -->
+            <div class="item-header">
+              <h3 class="item-title">
+                {{ [
+                  'Alumbrados Navideños',
+                  'Colombiamoda',
+                  'Feria de flores',
+                  'Feria del libro',
+                  'Feria del tango'
+                ][i-1] }}
+              </h3>
+              <p class="item-subtitle">
+                {{ [
+                  'De Dicimbre hasta Enero',
+                  'Julio y Enero',
+                  'Agosto',
+                  'Septiembre',
+                  'Finales de Junio'
+                ][i-1] }}
+              </p>
+            </div>
+
+            <div class="item-frame">
+              <img src="{{ url_for('static', filename='images/' ~ i ~ '.jpg') }}" alt="Lugar {{ i }}">
+              <div class="item-overlay">
+                <span class="item-number">#{{ i }}</span>
+              </div>
+            </div>
+
+            <div class="item-info">
+              {% if 'www.' in fuente %}
+                <a href="https://{{ fuente }}" target="_blank">{{ fuente }}</a>
+              {% else %}
+                {{ fuente }}
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+
+    <!-- CARA 3 -->
+    <div class="cara estilo-juego" id="cara3">
+      <div class="level-badge">NIVEL 3</div>
+      
+      <div class="game-card full-width">
+        <div class="card-header">
+          <h2 class="pixel-title">¿Cómo Funciona?</h2>
+        </div>
+        <div class="card-content">
+          <div class="intro-text">
+            <p>
+              El usuario navega por un mapa interactivo con filtros por categorías (hotelería, gastronomía, historia) y puede declarar o sugerir nuevos lugares para enriquecer la comunidad, haciendo del turismo una experiencia personalizada y participativa.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="quest-timeline">
+        <div class="quest-step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h4>Inicio</h4>
+            <p>Selecciona una categoria según el lugar de la categoría que quieras disfrutar.</p>
+          </div>
+        </div>
+
+        <div class="quest-step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h4>Filtro</h4>
+            <p>Explora el mapa y encuentra lugares.</p>
+          </div>
+        </div>
+
+        <div class="quest-step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h4>Interacción</h4>
+            <p>Declara o sugiere nuevos lugares.</p>
+          </div>
+        </div>
+
+        <div class="quest-step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h4>Disfruta</h4>
+            <p>Vive la experiencia personalizada.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Indicadores de página -->
+  <div class="page-indicators">
+    <div class="indicator" data-page="0"></div>
+    <div class="indicator" data-page="1"></div>
+    <div class="indicator" data-page="2"></div>
   </div>
 </section>
+
+<!-- Script de navegación horizontal -->
+<script>
+  let currentPage = 0;
+  const pages = document.querySelectorAll('.revista-contenido .cara');
+  const totalPages = pages.length;
+
+  function scrollPage(direction) {
+    if (direction === 'right') {
+      if (currentPage < totalPages - 1) {
+        currentPage++;
+      }
+    } else if (direction === 'left') {
+      if (currentPage > 0) {
+        currentPage--;
+      }
+    }
+    updatePageDisplay();
+  }
+
+  function updatePageDisplay() {
+    const content = document.getElementById('revista-contenido');
+    content.style.transform = `translateX(-${currentPage * 100}%)`;
+    updateIndicators();
+  }
+
+  function updateIndicators() {
+    const indicators = document.querySelectorAll('.indicator');
+    indicators.forEach((indicator, index) => {
+      if (index === currentPage) {
+        indicator.classList.add('active');
+      } else {
+        indicator.classList.remove('active');
+      }
+    });
+  }
+
+  // Click en los indicadores para navegar
+  function initIndicators() {
+    const indicators = document.querySelectorAll('.indicator');
+    indicators.forEach((indicator, index) => {
+      indicator.addEventListener('click', () => {
+        currentPage = index;
+        updatePageDisplay();
+      });
+    });
+  }
+
+  window.onload = function () {
+    updatePageDisplay();
+    initIndicators();
+  };
+
+  // Navegación con teclado
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') {
+      scrollPage('right');
+    } else if (e.key === 'ArrowLeft') {
+      scrollPage('left');
+    }
+  });
+</script>
+
 {% endblock %}
