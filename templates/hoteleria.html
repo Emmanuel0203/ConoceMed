@@ -7,117 +7,46 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-  <!-- Estilos personalizados -->
   <style>
-    html {
-      scroll-behavior: smooth; /* Scroll suave */
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #cfd8d8;
-      overflow-x: hidden;
-    }
-
-    .contenido-principal {
-      padding: 2rem;
-      background-color: #cfd8d8;
-      min-height: 100vh;
-    }
-
-    h1 {
-      color: #154360;
-      padding-top: 1rem;
-    }
-
-    a button,
-    button {
-      background-color: #154360;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 20px;
-      font-size: 1rem;
-    }
-
-    a button:hover,
-    button:hover {
-      background-color: #0b2e4a;
-    }
-
-    #map {
-      margin-top: 1.5rem;
-      height: 650px; /* Ampliar la altura del mapa */
-      width: 100%;
-      border-radius: 10px;
-      border: 2px solid #154360;
-    }
-
-    /* Estilos para el rightbar */
-    #rightbar {
-      display: none;
-      position: fixed;
-      right: 0;
-      top: 0;
-      width: 300px;
-      height: 100%;
-      background: white;
-      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
-      overflow-y: auto;
-      padding: 20px;
-    }
-
-    #rightbar button {
-      float: right;
-    }
+    html { scroll-behavior: smooth; }
+    body { font-family: Arial, sans-serif; background-color: #cfd8d8; overflow-x: hidden; }
+    .contenido-principal { padding: 2rem; background-color: #cfd8d8; min-height: 100vh; }
+    h1 { color: #154360; padding-top: 1rem; }
+    a button, button { background-color: #154360; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 20px; font-size: 1rem; }
+    a button:hover, button:hover { background-color: #0b2e4a; }
+    #map { margin-top: 1.5rem; height: 650px; width: 100%; border-radius: 10px; border: 2px solid #154360; }
+    /* rightbar */
+    #rightbar { display: none; position: fixed; right: 0; top: 0; width: 320px; height: 100%; background: white; box-shadow: -2px 0 5px rgba(0,0,0,0.5); overflow-y: auto; padding: 20px; }
   </style>
 {% endblock %}
 
 {% block content %}
   <div class="contenido-principal">
     <h1>Hotelería</h1>
-    <p>
-      Explora las opciones de hospedaje en Medellín, desde hoteles boutique hasta alojamientos para todos los presupuestos.
-    </p>
+    <p>Explora las opciones de hospedaje en Medellín, desde hoteles boutique hasta alojamientos para todos los presupuestos.</p>
 
-      <!-- Filtro por localidad -->
-      <div style="margin-top:12px; margin-bottom:8px;">
-        <label for="filter_localidad"><strong>Filtrar por localidad:</strong></label>
-        <select id="filter_localidad" style="margin-left:8px; padding:6px;">
-          <option value="">-- Todas las localidades --</option>
-        </select>
-      </div>
+    <div style="margin-top:12px; margin-bottom:8px;">
+      <label for="filter_localidad"><strong>Filtrar por localidad:</strong></label>
+      <select id="filter_localidad" style="margin-left:8px; padding:6px;"><option value="">-- Todas las localidades --</option></select>
+    </div>
 
-    <!-- Mapa interactivo -->
     <div id="map"></div>
 
-    <!-- Rightbar para mostrar información del sitio turístico -->
     <div id="rightbar" style="display: none; position: fixed; right: 0; top: 0; width: 300px; height: 100%; background: white; box-shadow: -2px 0 5px rgba(0,0,0,0.5); overflow-y: auto; padding: 20px;">
       <div id="site-info"></div>
       <button id="clear-route" style="display: none; margin-top: 10px;" onclick="clearRoute()">Eliminar ruta</button>
       <button onclick="closeSidebar()" style="display: block; margin-top: 20px;">Cerrar</button>
     </div>
 
-    <!-- Street View removed: using only multimedia provided by the application operators -->
-
     <!-- Botón flotante para reabrir el sidebar -->
     <button id="open-sidebar" style="display: none; position: fixed; bottom: 20px; right: 20px; background: #154360; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Ver información</button>
 
-    <!-- Botón de volver a la sección 2 -->
-    <div style="margin-top: 20px;">
-      <a href="{{ url_for('index') }}#seccion2">
-        <button>Volver</button>
-      </a>
-    </div>
+    <div style="margin-top:20px;"><a href="{{ url_for('index') }}#seccion2"><button>Volver</button></a></div>
   </div>
 {% endblock %}
 
 {% block scripts %}
-  <!-- Cargar Google Maps con async y defer, incluyendo Places API -->
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAVokh3gjR3rQrmWyZi-lYXtPfbO8Qihao&libraries=places"></script>
-  <!-- MarkerClusterer para agrupar marcadores cuando hay muchos -->
   <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
 
   <script>
@@ -314,7 +243,7 @@
                 const exp = expectedLocality.toLowerCase();
                 const found = (foundLocality||'').toLowerCase();
                 if (!found.includes(exp) && !exp.includes(found)) {
-                  // mismatch; if original has coords, prefer them (but here no coords), else accept geocode
+                  // mismatch; if original has coords, prefer them (but aquí no coords), else accept geocode
                   console.warn('Geocoding returned locality', foundLocality, 'which does not match expected', expectedLocality);
                 }
               }
@@ -400,10 +329,21 @@
                     else resolve(null);
                   });
                 });
+
                 if (details) {
-                  placeHtml = `<p><strong>Rating:</strong> ${details.rating || 'N/A'} (${details.user_ratings_total || 0})</p>`;
-                  if (details.formatted_phone_number) placeHtml += `<p><strong>Tel:</strong> ${details.formatted_phone_number}</p>`;
-                  if (details.website) placeHtml += `<p><a href='${details.website}' target='_blank'>Sitio web</a></p>`;
+                  const rating = details.rating ? `${details.rating} / 5` : 'N/A';
+                  const reviews = details.user_ratings_total || 0;
+                  const phone = details.formatted_phone_number || '';
+                  const website = details.website || '';
+                  const opening = (details.opening_hours && details.opening_hours.weekday_text) ? details.opening_hours.weekday_text.join('<br>') : '';
+
+                  // Do NOT include Google photos here — multimedia must come only from our API
+                  placeHtml = `
+                    <p><strong>Rating:</strong> ${rating} (${reviews} opiniones)</p>
+                    ${phone ? `<p><strong>Teléfono:</strong> <a href="tel:${phone}">${phone}</a></p>` : ''}
+                    ${website ? `<p><strong>Sitio web:</strong> <a href="${website}" target="_blank" rel="noopener">${website}</a></p>` : ''}
+                    ${opening ? `<p><strong>Horario detallado:</strong><br>${opening}</p>` : ''}
+                  `;
                 }
               }
             }
@@ -488,37 +428,92 @@
               // limpiar marcadores previos
               activeMarkers.forEach(m => m.setMap(null));
               activeMarkers = [];
-              if (markerCluster) {/* do nothing - cluster will be recreated below */}
+              if (markerCluster) {
+                try { markerCluster.clearMarkers(); } catch(e){}
+                markerCluster = null;
+              }
 
               const toPlot = sitiosFiltrados.filter(s => {
-                const fk = s.fkidLocalidad || s.idLocalidad || s.localidad || '';
                 if (!filterFk) return true;
+                const fk = s.fkidLocalidad || s.idLocalidad || s.localidad;
                 return String(fk) === String(filterFk);
               });
 
               toPlot.forEach((sitio) => {
-                resolveSiteLocation(sitio, (resolved) => {
-                  if (!resolved.latitud || !resolved.longitud) return;
-                  const pos = { lat: parseFloat(resolved.latitud), lng: parseFloat(resolved.longitud) };
-                  const marker = new google.maps.Marker({ position: pos, map: mapa, title: resolved.nombre });
-                  const html = `<div style="max-width:280px;"><strong>${resolved.nombre}</strong><p>${(resolved.descripcion||'')}</p></div>`;
-                  marker.addListener('click', () => {
-                    if (!infoWindow) infoWindow = new google.maps.InfoWindow();
-                    infoWindow.setContent(html);
-                    infoWindow.open(mapa, marker);
-                    showRightbar(resolved);
-                  });
+                resolveSiteLocation(sitio, (updatedSite) => {
+                  const lat = updatedSite && updatedSite.latitud !== undefined ? parseFloat(updatedSite.latitud) : NaN;
+                  const lng = updatedSite && updatedSite.longitud !== undefined ? parseFloat(updatedSite.longitud) : NaN;
+                  if (isNaN(lat) || isNaN(lng)) return;
+                  const marker = new google.maps.Marker({ position: { lat: lat, lng: lng }, map: mapa, title: updatedSite.nombre, icon: { url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' } });
                   activeMarkers.push(marker);
+                  marker.addListener('click', async () => {
+                    mapa.panTo({ lat: lat, lng: lng }); mapa.setZoom(15);
+                    findNearbyStations({ lat: lat, lng: lng });
+                    showRightbar(updatedSite);
+                    // Build a larger InfoWindow that uses ONLY API-provided multimedia and includes prev/next controls
+                    if (infoWindow) infoWindow.close();
+                    // slightly wider and taller to make multimedia easier to see
+                    let infoHtml = `<div style="max-width:420px; padding:8px;"><h3 style="margin:0 0 8px 0; font-size:1.1em;">${updatedSite.nombre||'Sin nombre'}</h3><div style="font-size:0.95em; color:#333; margin-bottom:8px;">${sitioLocalidadFromFk(updatedSite)||updatedSite.localidad||''}</div>`;
+                    try {
+                      const sitioId = updatedSite.idSitio || updatedSite.id;
+                      const resp = await fetch(`http://localhost:5031/api/Multimedia/fkidSitio/${sitioId}`);
+                      let medias = [];
+                      if (resp.ok) { const j = await resp.json(); medias = Array.isArray(j.datos) ? j.datos : (Array.isArray(j) ? j : []); }
+
+                      // Build carousel container
+                      infoHtml += `<div id="infowindow_carousel_${sitioId}" style="width:100%; height:270px; position:relative; background:#f7f7f7; display:flex; align-items:center; justify-content:center;">`;
+                      if (medias.length === 0) {
+                        infoHtml += `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#666;">Sin multimedia</div>`;
+                      } else {
+                        // create image/video elements, only one visible at a time
+                        medias.forEach((m, idx) => {
+                          const url = m.url || '';
+                          const lower = url.toLowerCase();
+                          if (lower.endsWith('.mp4') || lower.endsWith('.webm')) {
+                            infoHtml += `<video data-idx="${idx}" style="max-width:100%; max-height:100%; display:${idx===0?'block':'none'}; border-radius:6px;" controls><source src="${url}"></video>`;
+                          } else if (lower.endsWith('.mp3') || lower.endsWith('.wav')) {
+                            infoHtml += `<div data-idx="${idx}" style="display:${idx===0?'block':'none'}; width:100%; padding:12px; box-sizing:border-box;"> <audio controls style="width:100%;"><source src="${url}"></audio></div>`;
+                          } else {
+                            infoHtml += `<img data-idx="${idx}" src="${url}" style="width:100%; height:100%; object-fit:cover; display:${idx===0?'block':'none'}; border-radius:6px;">`;
+                          }
+                        });
+                        // Add navigation buttons
+                        infoHtml += `<button id="infow_prev_${sitioId}" style="position:absolute; left:6px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:#fff; border:none; padding:6px 8px; border-radius:4px; cursor:pointer;">◀</button>`;
+                        infoHtml += `<button id="infow_next_${sitioId}" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:#fff; border:none; padding:6px 8px; border-radius:4px; cursor:pointer;">▶</button>`;
+                      }
+                      infoHtml += `</div>`;
+                    } catch(e) { console.warn('Error fetching multimedia for infowindow', e); infoHtml += `<div style="width:100%; height:150px; display:flex; align-items:center; justify-content:center; color:#666;">Sin multimedia</div>`; }
+
+                    infoHtml += `<div style="margin-top:8px; font-size:0.9em;">${(updatedSite.descripcion||'').slice(0,240)}</div>`;
+                    infoHtml += '</div>';
+                    infoWindow = new google.maps.InfoWindow({ content: infoHtml, maxWidth: 380 });
+                    infoWindow.open(mapa, marker);
+
+                    // After infowindow DOM is ready, wire carousel buttons
+                    google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
+                      try {
+                        const sitioId = updatedSite.idSitio || updatedSite.id;
+                        const prev = document.getElementById(`infow_prev_${sitioId}`);
+                        const next = document.getElementById(`infow_next_${sitioId}`);
+                        const container = document.getElementById(`infowindow_carousel_${sitioId}`);
+                        if (!container) return;
+                        let current = 0;
+                        const items = Array.from(container.querySelectorAll('[data-idx]'));
+                        const setVisible = (i) => {
+                          items.forEach(el => { el.style.display = (parseInt(el.dataset.idx)===i) ? (el.tagName.toLowerCase()==='video' ? 'block' : 'block') : 'none';
+                            if (el.tagName.toLowerCase()==='video') { try{ if (parseInt(el.dataset.idx)!==i) el.pause(); } catch(e){} }
+                          });
+                        };
+                        if (prev) prev.addEventListener('click', () => { if (items.length===0) return; current = (current-1+items.length)%items.length; setVisible(current); });
+                        if (next) next.addEventListener('click', () => { if (items.length===0) return; current = (current+1)%items.length; setVisible(current); });
+                      } catch(e) { console.warn('Error wiring infowindow carousel', e); }
+                    });
+
+                    // add to cluster
+                    if (typeof MarkerClusterer !== 'undefined') { if (!markerCluster) markerCluster = new MarkerClusterer(mapa, activeMarkers, { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' }); else markerCluster.addMarker(marker); }
+                  });
                 });
               });
-
-              // recreate marker cluster if markerClusterer available
-              if (typeof markerClusterer !== 'undefined' && markerCluster) {
-                markerCluster.clearMarkers();
-              }
-              if (typeof MarkerClusterer !== 'undefined') {
-                markerCluster = new MarkerClusterer(mapa, activeMarkers, { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
-              }
             };
 
             // Inicial dibujado sin filtro
