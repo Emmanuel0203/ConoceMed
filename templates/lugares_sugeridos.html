@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Lugares Sugeridos{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+
+<div class="container">
+    <h1>Gestión de Lugares Sugeridos</h1>
+    <table id="lugaresSugeridosTable" class="display">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Localidad</th>
+                <th>Categoría</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lugar in lugares %}
+            <tr>
+                <td>{{ lugar.idSitio }}</td>
+                <td>{{ lugar.nombre }}</td>
+                <td>{{ lugar.direccion }}</td>
+                <td>{{ lugar.localidad_nombre or (lugar.get('fkidLocalidad') or lugar.get('localidad') or '—') }}</td>
+                <td>{{ lugar.categoria_nombre or (lugar.get('fkidCategoria_Turistica') or lugar.get('categoria') or '—') }}</td>
+                <td>{{ lugar.get('descripcion') or '—' }}</td>
+                <td>{{ lugar.estado }}</td>
+                <td>
+                    <a href="{{ url_for('vistaAdmin.editar_lugar', id=lugar.idSitio) }}">Editar</a> |
+                    <form action="{{ url_for('vistaAdmin.aprobar_lugar', id=lugar.idSitio) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-success">Aprobar</button>
+                    </form>
+                    <form action="{{ url_for('vistaAdmin.rechazar_lugar', id=lugar.idSitio) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Rechazar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#lugaresSugeridosTable').DataTable({
+            "language": {
+                "url": "https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+            }
+        });
+    });
+</script>
+{% endblock %}

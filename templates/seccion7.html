@@ -1,18 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}Sección 7 - ConoceMed{% endblock %}
+{% block title %}Panel de Administración{% endblock %}
 
 {% block content %}
-
-<!-- Sección ADMIN -->
-{% if current_user.is_authenticated %}
-<section class="vista" id="seccion7">
-  <div class="container">
-    <h2 class="text-center mb-4">Panel Administrativo</h2>
-    <p class="text-center">Aquí podrás gestionar los lugares sugeridos por la comunidad.</p>
-  </div>
-</section>
-{% endif %}
-
-
+<div class="container">
+    <h1>Panel de Administración</h1>
+    <div class="list-group">
+        <a href="{{ url_for('vistaAdmin.gestionar_lugares_sugeridos') }}" class="list-group-item list-group-item-action">Gestionar Lugares Sugeridos</a>
+        <a href="{{ url_for('vistaAdmin.gestionar_sitios_turisticos') }}" class="list-group-item list-group-item-action">Gestionar Sitios Turísticos (Aprobados)</a>
+        {% if admin_uploads_token %}
+        <a href="{{ url_for('vistaAdmin.listar_uploads') }}?token={{ admin_uploads_token }}" class="list-group-item list-group-item-action">Ver Uploads (QA)</a>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

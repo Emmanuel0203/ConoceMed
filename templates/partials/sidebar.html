@@ -10,7 +10,7 @@
 
   <ul class="nav nav-pills flex-column mb-auto d-flex gap-2 fs-3">
     <li>
-      <a href="#seccion1" class="nav-link" style="margin-top: 110px;">
+      <a href="/" class="nav-link" style="margin-top: 110px;">
         <i class="bi bi-house-door me-2"></i> INICIO
       </a>
     </li>
@@ -33,16 +33,20 @@
       <a href="#seccion5" class="nav-link">
         <i class="bi bi-people me-2"></i> EQUIPO
       </a>
-    </li>
-    <li>
+    </li>    <li>
       <a href="#seccion6" class="nav-link">
         <i class="bi bi-people me-2"></i> DATOS
       </a>
     </li>
-    {% if current_user.is_authenticated %}
     <li>
       <a href="#seccion7" class="nav-link">
-        <i class="bi bi-people me-2"></i> ADMIN
+        <i class="bi bi-people me-2"></i> ANALÍTICA
+      </a>
+    </li>
+    {% if current_user.is_authenticated %}
+    <li>
+      <a href="{{ url_for('vistaAdmin.admin_panel') }}" class="nav-link">
+        <i class="bi bi-people me-2"></i> PANEL DE CONTROL
       </a>
     </li>
     {% endif %}

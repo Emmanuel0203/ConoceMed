@@ -70,7 +70,7 @@ document.getElementById("formSugerirLugar").addEventListener("submit", async fun
   e.preventDefault();
 
   const formData = new FormData(this);
-  
+
   const response = await fetch("{{ url_for('vistaSugerido.sugerir_lugar') }}", {
     method: "POST",
     body: formData
@@ -84,7 +84,7 @@ document.getElementById("formSugerirLugar").addEventListener("submit", async fun
     mensaje.style.color = "green";
     this.reset();
   } else {
-    mensaje.textContent = "❌ Error al enviar. Revisa los campos.";
+    mensaje.textContent = `❌ Error: ${data.message}`;
     mensaje.style.color = "red";
   }
 });
