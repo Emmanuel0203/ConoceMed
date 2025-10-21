@@ -18,9 +18,7 @@ from views.vistaLogin import vistaLogin
 from views.vistaSugerido import vistaSugerido
 from views.vistaAdmin import vistaAdmin
 
-
-
-load_dotenv()
+load_dotenv()  # Esto lee el archivo .env y carga las variables en el entorno
 
 
 # Base directory absoluta del proyecto (archivo main.py)
