@@ -16,9 +16,7 @@ from views.vistaSitio import vistaSitio
 from views.vistaLogin import vistaLogin
 from views.vistaSugerido import vistaSugerido
 
-
-
-load_dotenv()
+load_dotenv()  # Esto lee el archivo .env y carga las variables en el entorno
 
 
 app = Flask(__name__)

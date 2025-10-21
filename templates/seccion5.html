@@ -1,50 +1,112 @@
 {% extends "base.html" %}
-
 {% block title %}Sección 5 - ConoceMed{% endblock %}
 
 {% block content %}
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/seccion5.css') }}">
+<!-- CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-<section class="vista" id="seccion5">
+<section class="vista equipo" id="seccion5">
   <div class="declarar-contenedor">
+    <div class="declarar-formulario1">
+      <div class="level-badge">NIVEL 5</div>
+      <h2 class="pixel-title">Conoce a nuestro equipo</h2>
+      <p class="subtitulo retro-text">Haz clic en una ventana para ver más información.</p>
 
-    <!-- Contenido de carpetas a la derecha -->
-    <div class="declarar-formulario">
-      <h2>OTRA INFORMACIÓN DE INTERÉS</h2>
-      <p>Haz clic en cada carpeta para ver más detalles.</p>
-
-      <!-- Carpeta 1 -->
-      <div class="carpeta" onclick="toggleCarpeta(this)">
-        <h3>📁 persona 1</h3>
-        <div class="contenido-carpeta">
-          <p>información</p>
+      <div class="ventanas-container">
+        <!-- Persona 1 -->
+        <div class="ventana estilo-juego" onclick="abrirModal('Folleto_Emmanuel.jpg', 'Emmanuel Alvarez')">
+          <div class="ventana-barra">
+            <span class="btn roja"></span>
+            <span class="btn amarilla"></span>
+            <span class="btn verde"></span>
+          </div>
+          <div class="ventana-contenido">
+            <h3>Emmanuel Alvarez</h3>
+            <p class="descripcion">Ingeniero de datos y software</p>
+            <div class="game-frame">
+              <img src="/static/images/Caricatura_Emmanuel.png" alt="Emmanuel Alvarez" class="ventana-img">
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Carpeta 2 -->
-      <div class="carpeta" onclick="toggleCarpeta(this)">
-        <h3>📁 Persona 2</h3>
-        <div class="contenido-carpeta">
-          <p>información</p>
+        <!-- Persona 2 -->
+        <div class="ventana estilo-juego" onclick="abrirModal('Folleto_Sofia.jpg', 'Sofía Saldarriaga')">
+          <div class="ventana-barra">
+            <span class="btn roja"></span>
+            <span class="btn amarilla"></span>
+            <span class="btn verde"></span>
+          </div>
+          <div class="ventana-contenido">
+            <h3>Sofía Saldarriaga</h3>
+            <p class="descripcion">Ingeniera de datos y software</p>
+            <div class="game-frame">
+              <img src="/static/images/Caricatura_Sofia.png" alt="Sofía Saldarriaga" class="ventana-img">
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Carpeta 3 -->
-      <div class="carpeta" onclick="toggleCarpeta(this)">
-        <h3>📁 Persona 3</h3>
-        <div class="contenido-carpeta">
-          <p>información</p>
+        <!-- Persona 3 -->
+        <div class="ventana estilo-juego" onclick="abrirModal('Folleto_Samuel.jpg', 'Samuel Osorio')">
+          <div class="ventana-barra">
+            <span class="btn roja"></span>
+            <span class="btn amarilla"></span>
+            <span class="btn verde"></span>
+          </div>
+          <div class="ventana-contenido">
+            <h3>Samuel Osorio</h3>
+            <p class="descripcion">Ingeniero de multimedia</p>
+            <div class="game-frame">
+              <img src="/static/images/Caricatura_Samuel.png" alt="Samuel Osorio" class="ventana-img">
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
   </div>
 </section>
 
-<!-- JavaScript para comportamiento de carpetas -->
+<!-- Modal -->
+<div id="modalImagen" class="modal">
+  <div class="modal-contenido">
+    <span class="cerrar" onclick="cerrarModal()">&times;</span>
+    <h3 id="modalTitulo"></h3>
+    <img id="modalImg" src="" alt="Imagen modal">
+  </div>
+</div>
+
+<!-- Script -->
 <script>
-  function toggleCarpeta(element) {
-    const contenido = element.querySelector('.contenido-carpeta');
-    contenido.classList.toggle('visible');
+  function abrirModal(nombreArchivo, titulo) {
+    const modal = document.getElementById('modalImagen');
+    const img = document.getElementById('modalImg');
+    const modalTitulo = document.getElementById('modalTitulo');
+
+    img.src = `/static/images/${nombreArchivo}`;
+    modalTitulo.textContent = titulo;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
   }
+
+  function cerrarModal() {
+    const modal = document.getElementById('modalImagen');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+
+  window.onclick = function(event) {
+    const modal = document.getElementById('modalImagen');
+    if (event.target === modal) {
+      cerrarModal();
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      cerrarModal();
+    }
+  });
 </script>
 {% endblock %}
