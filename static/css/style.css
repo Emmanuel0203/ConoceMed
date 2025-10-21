@@ -52,11 +52,27 @@ header {
   left: 0;
   width: 280px;
   z-index: 1030;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 30px 20px;
+
 }
 
 #sidebar .nav-link {
   font-family: 'Press Start 2P', cursive;  /* 👈 Tipo de letra */
   font-size: 18px;                        /* 👈 Tamaño de la letra */
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: flex-start;
+  padding: 20px 0 20px 5px;
+}
+
+.sidebar-logo {
+  border-bottom: 2px solid white; /* Línea blanca separadora */
+  padding-bottom: 35px;           /* Espacio interno debajo del logo */
+  margin-bottom: 25px;            /* Espacio entre el logo y el menú */
 }
 
 /* AJUSTE PARA EL DROPDOWN DENTRO DEL SIDEBAR FIJO */
@@ -182,6 +198,7 @@ header {
   justify-content: center;
   align-items: center;
   text-align: center;
+  transform: translateX(-140px); /* la mitad del sidebar */
 }
 
 
@@ -266,7 +283,7 @@ header {
 
 .texto-tarjeta {
   width: 100%;
-  background-color: black;
+  background-color: #fb676c;
   padding: 10px;
   z-index: 3;
   display: flex;
@@ -329,7 +346,7 @@ header {
 .icon-Hotel {
   width: 100%;
   height: 500px;
-  transform: scale(1.3);
+  transform: scale(1.5) translateY(-30px) translateX(-20px);
 }
 
 
