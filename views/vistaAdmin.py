@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, session
 from utils.api_client import APIClient
 from utils.geocode import geocode, normalize_address, geocode_with_variants
-from controllers.controlAdmin import build_payload_from_form, validate_required_fks, apply_geocode, save_and_register_files, allowed_file
+from controllers.controlAdmin import build_payload_from_form, validate_required_fks, apply_geocode, save_and_register_files, save_and_register_files_background, allowed_file
 import os
 import urllib.parse
 from werkzeug.utils import secure_filename
@@ -83,12 +83,18 @@ def editar_lugar(id):
             files = []
 
         try:
-            results = save_and_register_files(files, id, api_client_factory)
-            if results:
-                failed = [r for r in results if not r.get('success')]
-                if failed:
-                    current_app.logger.warning(f"editar_lugar: fallos al registrar multimedia: {failed}")
-                    flash(f'Algunos archivos no pudieron registrarse: {len(failed)}. Revisa los logs.', 'warning')
+            # Process files in background to speed up the response
+            if files:
+                started = save_and_register_files_background(files, id, api_client_factory)
+                if started:
+                    current_app.logger.info(f'editar_lugar: multimedia registration started in background for sitio={id}')
+                else:
+                    # Fallback to synchronous if background start failed
+                    results = save_and_register_files(files, id, api_client_factory)
+                    failed = [r for r in results if not r.get('success')]
+                    if failed:
+                        current_app.logger.warning(f"editar_lugar: fallos al registrar multimedia (sync fallback): {failed}")
+                        flash(f'Algunos archivos no pudieron registrarse: {len(failed)}. Revisa los logs.', 'warning')
         except Exception:
             current_app.logger.exception('Error processing files in editar_lugar')
 
@@ -557,12 +563,16 @@ def actualizar_lugar(id):
 
     try:
         # Note: save_and_register_files expects the multimedia API client factory
-        results = save_and_register_files(files, id, api_client_factory)
-        if results:
-            failed = [r for r in results if not r.get('success')]
-            if failed:
-                current_app.logger.warning(f"actualizar_lugar: fallos al registrar multimedia: {failed}")
-                flash(f'Algunos archivos no pudieron registrarse: {len(failed)}. Revisa los logs.', 'warning')
+        if files:
+            started = save_and_register_files_background(files, id, api_client_factory)
+            if started:
+                current_app.logger.info(f'actualizar_lugar: multimedia registration started in background for sitio={id}')
+            else:
+                results = save_and_register_files(files, id, api_client_factory)
+                failed = [r for r in results if not r.get('success')]
+                if failed:
+                    current_app.logger.warning(f"actualizar_lugar: fallos al registrar multimedia (sync fallback): {failed}")
+                    flash(f'Algunos archivos no pudieron registrarse: {len(failed)}. Revisa los logs.', 'warning')
     except Exception:
         current_app.logger.exception('actualizar_lugar: error processing files')
         current_app.logger.warning('actualizar_lugar: archivos procesados count=%s', len(files) if files is not None else 0)

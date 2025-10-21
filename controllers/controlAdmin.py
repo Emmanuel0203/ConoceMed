@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 from decimal import Decimal
 from utils.geocode import geocode_with_variants
+import threading
 
 
 def build_payload_from_form(raw: dict) -> dict:
@@ -193,3 +194,34 @@ def save_and_register_files(archivos: List[FileStorage], fkidSitio: str, api_mul
             results.append({'filename': filename, 'success': False, 'error': str(ex)})
     # end for
     return results
+
+
+def save_and_register_files_background(archivos: List[FileStorage], fkidSitio: str, api_multimedia_client_factory: Callable):
+    """Start a background thread that saves and registers files so the request can return faster.
+    Returns True when the thread was started, False otherwise.
+    """
+    try:
+        app = current_app._get_current_object()
+    except Exception:
+        # If no current_app (shouldn't happen when called from a view), fallback to synchronous
+        try:
+            save_and_register_files(archivos, fkidSitio, api_multimedia_client_factory)
+            return False
+        except Exception:
+            return False
+
+    def worker(a, fid, factory):
+        try:
+            with app.app_context():
+                save_and_register_files(a, fid, factory)
+        except Exception as e:
+            app.logger.exception(f"Background save_and_register_files worker failed: {e}")
+
+    try:
+        t = threading.Thread(target=worker, args=(archivos, fkidSitio, api_multimedia_client_factory), daemon=True)
+        t.start()
+        current_app.logger.debug(f"controlAdmin: started background thread for {len(archivos)} files")
+        return True
+    except Exception as ex:
+        current_app.logger.exception(f"controlAdmin: failed to start background worker: {ex}")
+        return False
