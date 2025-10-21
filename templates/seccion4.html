@@ -59,7 +59,11 @@
         {{ form.submit(class="btn btn-primary", value="Enviar sugerencia") }}
       </form>
 
-      <!-- Contenedor de mensajes -->
+  <!-- Hidden fields to record provenance of location and confidence (for server) -->
+  <input type="hidden" name="location_source" value="" />
+  <input type="hidden" name="location_confidence" value="" />
+
+  <!-- Contenedor de mensajes -->
       <div id="mensaje-resultado" class="mensaje"></div>
 
     </div>
@@ -116,5 +120,32 @@
         mensaje.style.color = "red";
       }
     });
+  </script>
+  <!-- Google Places Autocomplete: populate lat/lng on selection (parity with crear/editar) -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAVokh3gjR3rQrmWyZi-lYXtPfbO8Qihao&libraries=places"></script>
+  <script>
+  (function(){
+    function safeInit(){
+      try{
+        const addressInput = document.querySelector('input[name="direccion"]');
+        const latInput = document.querySelector('input[name="latitud"]');
+        const lngInput = document.querySelector('input[name="longitud"]');
+        if(!addressInput) return;
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, { types: ['geocode'], componentRestrictions: { country: 'co' } });
+        autocomplete.addListener('place_changed', function(){
+          const place = autocomplete.getPlace();
+          if(place && place.geometry && place.geometry.location){
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            if(latInput) latInput.value = lat;
+            if(lngInput) lngInput.value = lng;
+            const srcF = document.querySelector('input[name="location_source"]'); if(srcF) srcF.value='client';
+            const cF = document.querySelector('input[name="location_confidence"]'); if(cF) cF.value='0.95';
+          }
+        });
+      }catch(e){console.warn('seccion4 autocomplete init', e);}    
+    }
+    function waitG(){ if(window.google && google.maps && google.maps.places) safeInit(); else setTimeout(waitG, 300);} waitG();
+  })();
   </script>
   {% endblock %}
