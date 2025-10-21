@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Lugar no encontrado{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Registro no encontrado</h1>
+  <p>No se encontró el sitio con id <strong>{{ buscado_id }}</strong>.</p>
+  <p>Lista de candidatos (selecciona uno para editar):</p>
+  {% if candidates %}
+    <ul>
+      {% for c in candidates %}
+        <li>
+          <a href="{{ url_for('vistaAdmin.editar_lugar', id=c.get('idSitio') or c.get('id') or '') }}">{{ c.get('nombre') or c.get('idSitio') or c.get('id') }}</a>
+          - {{ c.get('direccion') or '—' }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No se encontraron registros para mostrar como candidatos.</p>
+  {% endif %}
+  <a href="{{ url_for('vistaAdmin.gestionar_lugares_sugeridos') }}" class="btn btn-secondary">Volver</a>
+</div>
+{% endblock %}

@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Lugar{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Editar Lugar</h1>
+  {% if lugar %}
+  <form method="post" enctype="multipart/form-data" action="{{ url_for('vistaAdmin.actualizar_lugar', id=lugar.idSitio) }}">
+    <div class="mb-3">
+      <label class="form-label">Nombre</label>
+      <input class="form-control" name="nombre" value="{{ lugar.nombre or '' }}" />
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Dirección</label>
+      <input class="form-control" name="direccion" value="{{ lugar.direccion or '' }}" />
+    </div>
+    <!-- Preview map for address (Google Places autocomplete will populate this) -->
+    <div class="mb-3" id="direccion_preview_container" style="display:none;">
+      <label class="form-label">Vista previa ubicación</label>
+      <div id="addressPreviewMap" style="width:100%; height:320px; border:1px solid #ddd; border-radius:6px;"></div>
+      <div class="form-text">Arrastre el marcador para ajustar la ubicación precisa. Lat/Lng se actualizarán automáticamente.</div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Latitud</label>
+      <input class="form-control" type="number" step="any" name="latitud" value="{{ lugar.latitud or '' }}" />
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Longitud</label>
+      <input class="form-control" type="number" step="any" name="longitud" value="{{ lugar.longitud or '' }}" />
+    </div>
+    <!-- Hidden fields to track how location was obtained and a confidence metric (0-1) -->
+    <input type="hidden" name="location_source" value="{{ lugar.location_source or '' }}" />
+    <input type="hidden" name="location_confidence" value="{{ lugar.location_confidence or '' }}" />
+    <div class="mb-3">
+      <label class="form-label">Descripción</label>
+      <textarea class="form-control" name="descripcion">{{ lugar.descripcion or '' }}</textarea>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Horario apertura</label>
+      <input class="form-control" type="time" name="horario_apertura" value="{{ lugar.horario_apertura or '' }}" />
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Horario cierre</label>
+      <input class="form-control" type="time" name="horario_cierre" value="{{ lugar.horario_cierre or '' }}" />
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Tarifa</label>
+      <input class="form-control" type="number" name="tarifa" step="0.01" min="0" value="{{ lugar.tarifa if lugar.tarifa is not none else '' }}" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Localidad</label>
+      <select class="form-select" name="fkidLocalidad">
+        <option value="">-- Seleccione localidad --</option>
+        {% for loc in localidades %}
+          {% set loc_id = loc.get('idLocalidad') or loc.get('id') %}
+          <option value="{{ loc_id }}" {% if (lugar.fkidLocalidad|string == loc_id|string) or (lugar.idLocalidad|string == loc_id|string) %}selected{% endif %}>{{ loc.get('nombre') }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Categoría</label>
+      <select class="form-select" name="fkidCategoria_Turistica">
+        <option value="">-- Seleccione categoría --</option>
+        {% for cat in categorias %}
+          {% set cat_id = cat.get('idCategoria_Turistica') or cat.get('id') %}
+          <option value="{{ cat_id }}" {% if (lugar.fkidCategoria_Turistica|string == cat_id|string) or (lugar.idCategoria_Turistica|string == cat_id|string) %}selected{% endif %}>{{ cat.get('nombre') }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <h3>Multimedia asociada</h3>
+    {% if multimedia %}
+      <div class="row mb-3">
+        {% for m in multimedia %}
+          {% set url = m.get('url') or '' %}
+          {% set raw_path = url and urlparse(url).path or '' %}
+          {% set filename = raw_path and filename_from_path(raw_path) or (m.get('url') or '') %}
+          <div class="col-md-3 mb-2">
+            <div class="card">
+              {% if filename.endswith('.mp4') or filename.endswith('.webm') %}
+                <video class="card-img-top" controls style="max-height:150px; object-fit:cover;">
+                  <source src="{{ url }}" type="video/mp4">
+                </video>
+              {% else %}
+                <img src="{{ url_for('static', filename='media/' ~ (filename|replace('\\\\','/')|trim('/')) ) }}" class="card-img-top" style="max-height:150px; object-fit:cover;" alt="{{ filename }}">
+              {% endif %}
+              <div class="card-body p-2">
+                <p class="card-text small text-truncate">{{ filename }}</p>
+                <!-- Evitar formularios anidados: usar data-action y una función JS para enviar POST -->
+                <button type="button" class="btn btn-sm btn-danger" data-action="{{ url_for('vistaAdmin.eliminar_multimedia', idMultimedia=m.get('idMultimedia'), idSitio=lugar.idSitio) }}" onclick="submitDelete(this.dataset.action)">Eliminar</button>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>No hay archivos multimedia asociados.</p>
+    {% endif %}
+
+    <div class="mb-3">
+      <label class="form-label">Subir archivos (varios)</label>
+      <input class="form-control" type="file" name="archivos" multiple />
+    </div>
+
+    <button class="btn btn-primary" type="submit">Guardar</button>
+    {# Usar cancel_url proporcionada por la vista; fallback para compatibilidad #}
+    <a href="{{ cancel_url if cancel_url is defined else url_for('vistaAdmin.gestionar_lugares_sugeridos') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+  {% else %}
+  <p>No se encontró el lugar a editar.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+  {% block scripts %}
+  <script>
+  function submitDelete(actionUrl){
+    if(!confirm('Eliminar multimedia?')) return false;
+    var f = document.createElement('form');
+    f.method = 'post';
+    f.action = actionUrl;
+    document.body.appendChild(f);
+    f.submit();
+  }
+  </script>
+  <!-- Google Maps Places autocomplete + preview map -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAVokh3gjR3rQrmWyZi-lYXtPfbO8Qihao&libraries=places"></script>
+  <script>
+  // Initialize Google Places autocomplete and preview map
+  function initAddressAutocompleteEditor(){
+    try{
+      const addressInput = document.querySelector('input[name="direccion"]');
+      const latInput = document.querySelector('input[name="latitud"]');
+      const lngInput = document.querySelector('input[name="longitud"]');
+      const previewContainer = document.getElementById('direccion_preview_container');
+      const previewDiv = document.getElementById('addressPreviewMap');
+
+      if(!addressInput) return;
+
+      const geocoder = new google.maps.Geocoder();
+      const autocomplete = new google.maps.places.Autocomplete(addressInput, { types: ['geocode'], componentRestrictions: { country: 'co' } });
+
+      let previewMap = null;
+      let previewMarker = null;
+
+      function showPreview(){ previewContainer.style.display = 'block'; }
+      function hidePreview(){ /* keep displayed once used */ }
+
+      function setMarker(lat, lng, zoom){
+        showPreview();
+        const pos = { lat: parseFloat(lat), lng: parseFloat(lng) };
+        if(!previewMap){
+          previewMap = new google.maps.Map(previewDiv, { center: pos, zoom: zoom || 16 });
+        } else {
+          previewMap.setCenter(pos);
+          if(zoom) previewMap.setZoom(zoom);
+        }
+        if(previewMarker){ previewMarker.setPosition(pos); }
+        else {
+          previewMarker = new google.maps.Marker({ position: pos, map: previewMap, draggable: true });
+          previewMarker.addListener('dragend', function(){
+            const p = previewMarker.getPosition();
+            if(latInput) latInput.value = p.lat();
+            if(lngInput) lngInput.value = p.lng();
+            // manual adjustment: high confidence for manual source
+            setLocationProvenance && setLocationProvenance('manual', 0.98);
+          });
+        }
+      }
+
+      autocomplete.addListener('place_changed', function(){
+        const place = autocomplete.getPlace();
+        if(place && place.geometry && place.geometry.location){
+          const lat = place.geometry.location.lat();
+          const lng = place.geometry.location.lng();
+          if(latInput) latInput.value = lat;
+          if(lngInput) lngInput.value = lng;
+          setMarker(lat, lng, 17);
+          // Mark that location came from client autocomplete with high confidence
+          setLocationProvenance && setLocationProvenance('client', 0.95);
+          // Optionally replace input with formatted address
+          if(place.formatted_address) addressInput.value = place.formatted_address;
+        } else {
+          // no geometry: try geocoding the text
+          geocodeText(addressInput.value);
+        }
+      });
+
+      // Geocode on blur for manual addresses
+      addressInput.addEventListener('blur', function(){
+        const txt = addressInput.value && addressInput.value.trim();
+        if(!txt) return;
+        // if lat/lng already set skip; otherwise geocode
+        if(latInput && latInput.value && lngInput && lngInput.value) return;
+        geocodeText(txt);
+      });
+
+      function geocodeText(text){
+        geocoder.geocode({ address: text + ', Medellín, Colombia' }, function(results, status){
+          if(status === 'OK' && results && results.length>0){
+            const r = results[0];
+            const lat = r.geometry.location.lat();
+            const lng = r.geometry.location.lng();
+            if(latInput) latInput.value = lat;
+            if(lngInput) lngInput.value = lng;
+            setMarker(lat, lng, 16);
+            // prefer formatted_address
+            if(r.formatted_address) addressInput.value = r.formatted_address;
+            // record server geocode with moderate confidence
+            setLocationProvenance && setLocationProvenance('server', 0.75);
+          } else {
+            console.warn('Geocode failed:', status);
+            // center map on Medellín so user can manually place marker
+            setMarker(6.2518, -75.5636, 12);
+            // unknown source, low confidence
+            setLocationProvenance && setLocationProvenance('unknown', 0.2);
+          }
+        });
+      }
+
+      // Helper to set hidden provenance fields
+      function setLocationProvenance(source, confidence){
+        try{
+          const srcField = document.querySelector('input[name="location_source"]');
+          const confField = document.querySelector('input[name="location_confidence"]');
+          if(srcField) srcField.value = source || '';
+          if(confField) confField.value = (confidence!=null? confidence : '');
+        }catch(e){/* ignore */}
+      }
+
+    } catch(e){ console.warn('initAddressAutocompleteEditor error', e); }
+  }
+
+  // Wait for google maps to be ready
+  function waitForGmapsAndInit(){
+    if(window.google && google.maps && google.maps.places){
+      initAddressAutocompleteEditor();
+    } else {
+      setTimeout(waitForGmapsAndInit, 300);
+    }
+  }
+  waitForGmapsAndInit();
+  </script>
+  {% endblock %}
+

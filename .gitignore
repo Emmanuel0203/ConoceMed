@@ -22,3 +22,6 @@ env/
 .idea/
 *.swp
 *.swo
+
+# Ignorar el archivo de log
+main.log

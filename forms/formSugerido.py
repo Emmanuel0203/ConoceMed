@@ -1,7 +1,8 @@
 # forms.py
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, DecimalField, TimeField, SubmitField, SelectField
-from wtforms.validators import DataRequired, Length, NumberRange, InputRequired
+from wtforms.validators import DataRequired, Length, NumberRange, InputRequired, Optional
+from flask_wtf.file import FileField, MultipleFileField
 
 class LugarSugeridoForm(FlaskForm):
     """Formulario para sugerir un nuevo lugar."""
@@ -18,13 +19,13 @@ class LugarSugeridoForm(FlaskForm):
 
     latitud = DecimalField(
         "Latitud",
-        validators=[DataRequired()],
+        validators=[Optional()],  # Permitir valores nulos
         places=6
     )
 
     longitud = DecimalField(
         "Longitud",
-        validators=[DataRequired()],
+        validators=[Optional()],  # Permitir valores nulos
         places=6
     )
 
@@ -35,19 +36,19 @@ class LugarSugeridoForm(FlaskForm):
 
     horario_apertura = TimeField(
         "Horario de apertura",
-        validators=[DataRequired()],
+        validators=[Optional()],  # Permitir valores nulos
         format='%H:%M'
     )
 
     horario_cierre = TimeField(
         "Horario de cierre",
-        validators=[DataRequired()],
+        validators=[Optional()],  # Permitir valores nulos
         format='%H:%M'
     )
 
     tarifa = DecimalField(
         "Tarifa de entrada",
-        validators=[InputRequired(), NumberRange(min=0)],
+        validators=[Optional(), NumberRange(min=0)],  # Permitir valores nulos
         places=2
     )
     
@@ -63,6 +64,11 @@ class LugarSugeridoForm(FlaskForm):
         "Categoría Turística",
         choices=[],  # Se llenará dinámicamente desde la vista
         validators=[DataRequired()]
+    )
+
+    archivos = MultipleFileField(
+        "Subir Archivos",
+        validators=[Optional()]  # Permitir valores nulos
     )
 
     submit = SubmitField("Enviar sugerencia")

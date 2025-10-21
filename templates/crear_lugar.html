@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Lugar{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Crear Lugar</h1>
+  <form method="post" enctype="multipart/form-data" action="{{ url_for('vistaAdmin.crear_lugar') }}{% if debug %}?debug=1{% endif %}">
+    <div class="mb-3">
+      <label class="form-label">Nombre</label>
+      <input class="form-control" name="nombre" value="" />
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Dirección</label>
+      <input class="form-control" name="direccion" value="" />
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Latitud</label>
+      <input class="form-control" type="number" step="any" name="latitud" value="" />
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Longitud</label>
+      <input class="form-control" type="number" step="any" name="longitud" value="" />
+    </div>
+    <!-- Hidden fields to record provenance of location and confidence -->
+    <input type="hidden" name="location_source" value="" />
+    <input type="hidden" name="location_confidence" value="" />
+    <div class="mb-3">
+      <label class="form-label">Descripción</label>
+      <textarea class="form-control" name="descripcion"></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Localidad</label>
+      <select class="form-select" name="fkidLocalidad">
+        <option value="">-- Seleccione localidad --</option>
+        {% for loc in localidades %}
+          {% set loc_id = loc.get('idLocalidad') or loc.get('id') %}
+          <option value="{{ loc_id }}">{{ loc.get('nombre') }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Categoría</label>
+      <select class="form-select" name="fkidCategoria_Turistica">
+        <option value="">-- Seleccione categoría --</option>
+        {% for cat in categorias %}
+          {% set cat_id = cat.get('idCategoria_Turistica') or cat.get('id') %}
+          <option value="{{ cat_id }}">{{ cat.get('nombre') }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Tarifa</label>
+      <input class="form-control" type="number" name="tarifa" step="0.01" min="0" value="" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Subir archivos (varios)</label>
+      <input class="form-control" type="file" name="archivos" multiple />
+    </div>
+
+    <button class="btn btn-primary" type="submit">Crear</button>
+    <a href="{{ url_for('vistaAdmin.gestionar_sitios_turisticos') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+  {% if debug and api_response %}
+    <div class="mt-3 alert alert-info">
+      <h5>Debug API response</h5>
+      <pre style="white-space:pre-wrap;">{{ api_response | tojson(indent=2) }}</pre>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+  <!-- Include a lightweight Google Places autocomplete integration to capture lat/lng and provenance -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAVokh3gjR3rQrmWyZi-lYXtPfbO8Qihao&libraries=places"></script>
+  <script>
+  (function(){
+    function safeInit(){
+      try{
+        const addressInput = document.querySelector('input[name="direccion"]');
+        const latInput = document.querySelector('input[name="latitud"]');
+        const lngInput = document.querySelector('input[name="longitud"]');
+        if(!addressInput) return;
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, { types: ['geocode'], componentRestrictions: { country: 'co' } });
+        autocomplete.addListener('place_changed', function(){
+          const place = autocomplete.getPlace();
+          if(place && place.geometry && place.geometry.location){
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            if(latInput) latInput.value = lat;
+            if(lngInput) lngInput.value = lng;
+            const srcF = document.querySelector('input[name="location_source"]'); if(srcF) srcF.value='client';
+            const cF = document.querySelector('input[name="location_confidence"]'); if(cF) cF.value='0.95';
+          }
+        });
+      }catch(e){console.warn('crear_lugar autocomplete init', e);}    
+    }
+    function waitG(){ if(window.google && google.maps && google.maps.places) safeInit(); else setTimeout(waitG, 300);} waitG();
+  })();
+  </script>
+{% endblock %}

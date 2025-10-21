@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Sitios Turísticos{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+
+<div class="container">
+    <h1>Gestión de Sitios Turísticos</h1>
+    <div style="margin-bottom:1rem;">
+        <a class="btn btn-primary" href="{{ url_for('vistaAdmin.crear_lugar') }}">Crear nuevo sitio</a>
+    </div>
+    <table id="sitiosTuristicosTable" class="display">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Localidad</th>
+                <th>Categoría</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sitio in sitios %}
+            <tr>
+                <td>{{ sitio.idSitio }}</td>
+                <td>{{ sitio.nombre }}</td>
+                <td>{{ sitio.direccion }}</td>
+                <td>{{ sitio.localidad_nombre or sitio.localidad or '—' }}</td>
+                <td>{{ sitio.categoria_nombre or sitio.categoria or '—' }}</td>
+                <td>{{ sitio.descripcion }}</td>
+                <td>
+                    <a href="{{ url_for('vistaAdmin.editar_lugar', id=sitio.idSitio) }}">Editar</a> |
+                    <form action="{{ url_for('vistaAdmin.eliminar_lugar', id=sitio.idSitio) }}" method="post" style="display:inline;">
+                        <button type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#sitiosTuristicosTable').DataTable({
+            "language": {
+                "url": "https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+            }
+        });
+    });
+</script>
+{% endblock %}

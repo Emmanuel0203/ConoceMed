@@ -7,129 +7,541 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-  <!-- Estilos personalizados -->
   <style>
-    html {
-      scroll-behavior: smooth; /* Scroll suave */
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #cfd8d8;
-      overflow-x: hidden;
-    }
-
-    .contenido-principal {
-      padding: 2rem;
-      background-color: #cfd8d8;
-      min-height: 100vh;
-    }
-
-    h1 {
-      color: #154360;
-      padding-top: 1rem;
-    }
-
-    a button,
-    button {
-
-      background-color: #154360;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 20px;
-      font-size: 1rem;
-    }
-
-    a button:hover,
-    button:hover {
-      background-color: #0b2e4a;
-    }
-
-    #map {
-      margin-top: 1.5rem;
-      height: 400px;
-      width: 100%;
-      border-radius: 10px;
-      border: 2px solid #154360;
-    }
+    html { scroll-behavior: smooth; }
+    body { font-family: Arial, sans-serif; background-color: #cfd8d8; overflow-x: hidden; }
+    .contenido-principal { padding: 2rem; background-color: #cfd8d8; min-height: 100vh; }
+    h1 { color: #154360; padding-top: 1rem; }
+    a button, button { background-color: #154360; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 20px; font-size: 1rem; }
+    a button:hover, button:hover { background-color: #0b2e4a; }
+    #map { margin-top: 1.5rem; height: 650px; width: 100%; border-radius: 10px; border: 2px solid #154360; }
+    /* rightbar */
+    #rightbar { display: none; position: fixed; right: 0; top: 0; width: 320px; height: 100%; background: white; box-shadow: -2px 0 5px rgba(0,0,0,0.5); overflow-y: auto; padding: 20px; }
   </style>
 {% endblock %}
 
 {% block content %}
   <div class="contenido-principal">
     <h1>Hotelería</h1>
-    <p>
-      Explora las opciones de hospedaje en Medellín, desde hoteles boutique hasta alojamientos para todos los presupuestos.
-    </p>
+    <p>Explora las opciones de hospedaje en Medellín, desde hoteles boutique hasta alojamientos para todos los presupuestos.</p>
 
-    <!-- Mapa interactivo -->
+    <div style="margin-top:12px; margin-bottom:8px;">
+      <label for="filter_localidad"><strong>Filtrar por localidad:</strong></label>
+      <select id="filter_localidad" style="margin-left:8px; padding:6px;"><option value="">-- Todas las localidades --</option></select>
+    </div>
+
     <div id="map"></div>
 
-    <!-- Botón de volver a la sección 2 -->
-    <div style="margin-top: 20px;">
-      <a href="{{ url_for('index') }}#seccion2">
-        <button>Volver</button>
-      </a>
+    <div id="rightbar" style="display: none; position: fixed; right: 0; top: 0; width: 300px; height: 100%; background: white; box-shadow: -2px 0 5px rgba(0,0,0,0.5); overflow-y: auto; padding: 20px;">
+      <div id="site-info"></div>
+      <button id="clear-route" style="display: none; margin-top: 10px;" onclick="clearRoute()">Eliminar ruta</button>
+      <button onclick="closeSidebar()" style="display: block; margin-top: 20px;">Cerrar</button>
     </div>
+
+    <!-- Botón flotante para reabrir el sidebar -->
+    <button id="open-sidebar" style="display: none; position: fixed; bottom: 20px; right: 20px; background: #154360; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Ver información</button>
+
+    <div style="margin-top:20px;"><a href="{{ url_for('index') }}#seccion2"><button>Volver</button></a></div>
   </div>
 {% endblock %}
 
 {% block scripts %}
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAVokh3gjR3rQrmWyZi-lYXtPfbO8Qihao&libraries=places"></script>
+  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
 
   <script>
-    // Inicializar el mapa centrado en Medellín
-    const mapa = L.map('map').setView([6.2518, -75.5636], 13);
+    function initializeMap() {
+      if (typeof google !== "undefined" && google.maps) {
+        console.log("Google Maps API cargada correctamente.");
 
-    // Capa base
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(mapa);
+        // Estilos personalizados para el mapa
+        const mapStyles = [
+          {
+            "elementType": "geometry",
+            "stylers": [
+              { "color": "#f5f5f5" }
+            ]
+          },
+          {
+            "elementType": "labels.icon",
+            "stylers": [
+              { "visibility": "off" }
+            ]
+          },
+          {
+            "elementType": "labels.text.fill",
+            "stylers": [
+              { "color": "#616161" }
+            ]
+          },
+          {
+            "elementType": "labels.text.stroke",
+            "stylers": [
+              { "color": "#f5f5f5" }
+            ]
+          },
+          {
+            "featureType": "administrative.land_parcel",
+            "elementType": "labels.text.fill",
+            "stylers": [
+              { "color": "#bdbdbd" }
+            ]
+          },
+          {
+            "featureType": "poi",
+            "elementType": "geometry",
+            "stylers": [
+              { "color": "#eeeeee" }
+            ]
+          },
+          {
+            "featureType": "poi",
+            "elementType": "labels.text.fill",
+            "stylers": [
+              { "color": "#757575" }
+            ]
+          },
+          {
+            "featureType": "road",
+            "elementType": "geometry",
+            "stylers": [
+              { "color": "#ffffff" }
+            ]
+          },
+          {
+            "featureType": "road.arterial",
+            "elementType": "labels.text.fill",
+            "stylers": [
+              { "color": "#757575" }
+            ]
+          },
+          {
+            "featureType": "road.highway",
+            "elementType": "geometry",
+            "stylers": [
+              { "color": "#dadada" }
+            ]
+          },
+          {
+            "featureType": "road.highway",
+            "elementType": "labels.text.fill",
+            "stylers": [
+              { "color": "#616161" }
+            ]
+          },
+          {
+            "featureType": "water",
+            "elementType": "geometry",
+            "stylers": [
+              { "color": "#c9c9c9" }
+            ]
+          },
+          {
+            "featureType": "water",
+            "elementType": "labels.text.fill",
+            "stylers": [
+              { "color": "#9e9e9e" }
+            ]
+          }
+        ];
 
-    // UUID de la categoría "Hotelería"
-    const CATEGORIA_HOTELERIA_UUID = "7e20135d-08bc-4240-bb19-160b85552efb";
-
-    // Obtener sitios desde la API
-    fetch("http://localhost:5031/api/sitio_turistico")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("✅ Datos recibidos de la API:", data);
-
-        if (!data.datos || !Array.isArray(data.datos)) {
-          console.warn("⚠️ La API no devolvió una lista de sitios válida.");
-          return;
-        }
-
-        const sitiosFiltrados = data.datos.filter(
-          (sitio) => sitio.fkidCategoria_Turistica === CATEGORIA_HOTELERIA_UUID
-        );
-
-        if (sitiosFiltrados.length === 0) {
-          alert("⚠️ No hay sitios para la categoría 'Hotelería'.");
-          return;
-        }
-
-        // Agregar marcadores al mapa
-        sitiosFiltrados.forEach((sitio) => {
-          if (!sitio.latitud || !sitio.longitud) return;
-
-          const marker = L.marker([sitio.latitud, sitio.longitud]).addTo(mapa);
-          marker.bindPopup(`
-            <strong>${sitio.nombre}</strong><br>
-            ${sitio.descripcion}<br>
-            <b>Dirección:</b> ${sitio.direccion}<br>
-            <b>Horario:</b> ${sitio.horario_apertura} - ${sitio.horario_cierre}<br>
-            <b>Tarifa:</b> $${sitio.tarifa}
-          `);
+        // Configurar el centro del mapa en Medellín con un zoom más minimizado
+        const mapa = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: 6.2518, lng: -75.5636 }, // Coordenadas de Medellín
+          zoom: 12, // Ajustar el nivel de zoom para una vista más amplia
+          styles: mapStyles, // Aplicar estilos personalizados
         });
-      })
-      .catch((err) => {
-        console.error("❌ Error al cargar los sitios turísticos:", err);
-        alert("Error al cargar sitios turísticos. Consulta la consola.");
-      });
+
+  const placesService = new google.maps.places.PlacesService(mapa);
+  const geocoder = new google.maps.Geocoder();
+  let activeMarkers = []; // Lista para almacenar marcadores activos
+  let localidadMap = {}; // mapa idLocalidad -> nombre
+  let infoWindow = null; // InfoWindow para mostrar tarjeta pequeña sobre el marcador
+
+        // Cargar localidades para mapear fkidLocalidad -> nombre
+        // Cargar localidades y exponer una promesa que se puede esperar
+        const loadLocalidadesPromise = (async function loadLocalidades(){
+          try {
+            const r = await fetch('http://localhost:5031/api/Localidad');
+            if (r.ok) {
+              const j = await r.json();
+              const list = Array.isArray(j.datos) ? j.datos : [];
+              list.forEach(l => {
+                const key = l.idLocalidad || l.id || l.id_localidad || null;
+                if (key) localidadMap[key] = l.nombre || l.nombre_localidad || '';
+              });
+            }
+          } catch (e) {
+            console.warn('No se pudieron cargar localidades:', e);
+          }
+        })();
+  let markerCluster = null;
+
+        // Función para buscar estaciones cercanas
+        const findNearbyStations = (location) => {
+          placesService.nearbySearch(
+            {
+              location,
+              radius: 3000, // Reducir el radio de búsqueda para mayor relevancia
+              type: ["subway_station", "bus_station"],
+            },
+            (results, status) => {
+              if (status === google.maps.places.PlacesServiceStatus.OK) {
+                results.forEach((place) => {
+                  const stationMarker = new google.maps.Marker({
+                    position: place.geometry.location,
+                    map: mapa,
+                    title: place.name,
+                    icon: { url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png" },
+                  });
+
+                  activeMarkers.push(stationMarker); // Agregar marcador a la lista
+                });
+              } else {
+                console.error("Error al buscar estaciones de metro y metroplus:", status);
+              }
+            }
+          );
+        };
+
+        // Helper: extraer nombre de localidad desde address_components
+        const extractLocalityFromComponents = (components) => {
+          if (!Array.isArray(components)) return null;
+          for (const c of components) {
+            if (Array.isArray(c.types) && (c.types.includes('locality') || c.types.includes('sublocality') || c.types.includes('administrative_area_level_2'))) {
+              return c.long_name;
+            }
+          }
+          return null;
+        };
+
+        // Resolver coordenadas: preferir lat/lng del sitio; si faltan, geocodificar usando dirección + localidad
+        const resolveSiteLocation = (siteInfo, callback) => {
+          const lat = siteInfo.latitud !== undefined && siteInfo.latitud !== null ? parseFloat(siteInfo.latitud) : NaN;
+          const lng = siteInfo.longitud !== undefined && siteInfo.longitud !== null ? parseFloat(siteInfo.longitud) : NaN;
+          if (!isNaN(lat) && !isNaN(lng)) {
+            // Si tenemos coordenadas válidas, devolverlas (aún podemos usar localidad para mejorar precisión si se desea)
+            callback({ ...siteInfo, latitud: lat, longitud: lng });
+            return;
+          }
+
+          // Construir dirección para geocodificar; priorizar localidad si existe
+          let addrParts = [];
+          if (siteInfo.direccion) addrParts.push(siteInfo.direccion);
+          if (siteInfo.localidad) addrParts.push(siteInfo.localidad + ', Medellín');
+          else addrParts.push('Medellín');
+          const detailedAddress = addrParts.join(', ') + ', Colombia';
+
+          geocoder.geocode({ address: detailedAddress }, (results, status) => {
+            if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+              const location = results[0].geometry.location;
+              // Validar localidad en los componentes si está disponible
+              const foundLocality = extractLocalityFromComponents(results[0].address_components);
+              const expectedLocality = (siteInfo.localidad || sitioLocalidadFromFk(siteInfo)).toString ? (siteInfo.localidad || sitioLocalidadFromFk(siteInfo)) : (siteInfo.localidad || '');
+              // Si hay localidad esperada y no coincide legiblemente con la encontrada, y además el sitio tiene coords, preferir coords
+              if (foundLocality && expectedLocality && expectedLocality.toLowerCase().trim() !== '' ) {
+                const exp = expectedLocality.toLowerCase();
+                const found = (foundLocality||'').toLowerCase();
+                if (!found.includes(exp) && !exp.includes(found)) {
+                  // mismatch; if original has coords, prefer them (but aquí no coords), else accept geocode
+                  console.warn('Geocoding returned locality', foundLocality, 'which does not match expected', expectedLocality);
+                }
+              }
+              callback({ ...siteInfo, latitud: location.lat(), longitud: location.lng() });
+            } else {
+              console.error('Error al geocodificar la dirección:', status);
+              // Devolver el sitio original sin coordenadas -- el caller debe manejar esto
+              callback(siteInfo);
+            }
+          });
+        };
+
+        // Helper para obtener nombre de localidad por FK usando localidadMap
+        const sitioLocalidadFromFk = (siteInfo) => {
+          try {
+            const fk = siteInfo.fkidLocalidad || siteInfo.idLocalidad || siteInfo.localidad || '';
+            if (!fk) return '';
+            return localidadMap[fk] || fk;
+          } catch (e) {
+            return '';
+          }
+        };
+
+        // Función para mostrar el rightbar con información del sitio y su multimedia
+        const showRightbar = async (siteInfo) => {
+          const rightbar = document.getElementById('rightbar');
+          const siteInfoDiv = document.getElementById('site-info');
+
+          // Formatear tarifa
+          let tarifaDisplay = 'No disponible';
+          if (siteInfo.tarifa === null || siteInfo.tarifa === undefined || siteInfo.tarifa === '') {
+            tarifaDisplay = 'Gratis';
+          } else {
+            const tnum = Number(siteInfo.tarifa);
+            tarifaDisplay = (isNaN(tnum) || tnum === 0) ? 'Gratis' : `$${tnum}`;
+          }
+
+          // Formatear horario
+          let horarioDisplay = '';
+          if ((!siteInfo.horario_apertura && !siteInfo.horario_cierre) || (siteInfo.horario_apertura === null && siteInfo.horario_cierre === null)) {
+            horarioDisplay = 'Entrada libre';
+          } else {
+            const ha = siteInfo.horario_apertura || '—';
+            const hc = siteInfo.horario_cierre || '—';
+            horarioDisplay = `${ha} - ${hc}`;
+          }
+
+          // Intentar obtener detalles enriquecidos desde Google Places (rating, telefono, website, horarios, fotos)
+          let placeHtml = '';
+          try {
+            if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+              const sitioId = siteInfo.idSitio || siteInfo.id;
+              // Preferir usar ubicación si está disponible
+              const lat = siteInfo.latitud !== undefined && siteInfo.latitud !== null ? parseFloat(siteInfo.latitud) : NaN;
+              const lng = siteInfo.longitud !== undefined && siteInfo.longitud !== null ? parseFloat(siteInfo.longitud) : NaN;
+              const placesService = new google.maps.places.PlacesService(document.createElement('div'));
+
+              // Helper: obtener Place a partir de nombre + location si hay coords, o findPlaceFromQuery
+              const obtenerPlace = () => new Promise((resolve) => {
+                if (!isNaN(lat) && !isNaN(lng)) {
+                  // nearbySearch para encontrar matches por nombre en la cercanía
+                  placesService.nearbySearch({ location: { lat: lat, lng: lng }, radius: 200, keyword: siteInfo.nombre || '' }, (results, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) return resolve(results[0]);
+                    // fallback: findPlaceFromQuery
+                    placesService.findPlaceFromQuery({ query: siteInfo.nombre || siteInfo.direccion || '', fields: ['place_id', 'geometry', 'name'] }, (res2, st2) => {
+                      if (st2 === google.maps.places.PlacesServiceStatus.OK && res2 && res2.length>0) resolve(res2[0]);
+                      else resolve(null);
+                    });
+                  });
+                } else {
+                  placesService.findPlaceFromQuery({ query: siteInfo.nombre || siteInfo.direccion || '', fields: ['place_id', 'geometry', 'name'] }, (res2, st2) => {
+                    if (st2 === google.maps.places.PlacesServiceStatus.OK && res2 && res2.length>0) resolve(res2[0]);
+                    else resolve(null);
+                  });
+                }
+              });
+
+              const placeCandidate = await obtenerPlace();
+              if (placeCandidate && placeCandidate.place_id) {
+                const details = await new Promise((resolve) => {
+                  placesService.getDetails({ placeId: placeCandidate.place_id, fields: ['name','rating','user_ratings_total','formatted_phone_number','website','opening_hours','vicinity'] }, (placeResult, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK) resolve(placeResult);
+                    else resolve(null);
+                  });
+                });
+
+                if (details) {
+                  const rating = details.rating ? `${details.rating} / 5` : 'N/A';
+                  const reviews = details.user_ratings_total || 0;
+                  const phone = details.formatted_phone_number || '';
+                  const website = details.website || '';
+                  const opening = (details.opening_hours && details.opening_hours.weekday_text) ? details.opening_hours.weekday_text.join('<br>') : '';
+
+                  // Do NOT include Google photos here — multimedia must come only from our API
+                  placeHtml = `
+                    <p><strong>Rating:</strong> ${rating} (${reviews} opiniones)</p>
+                    ${phone ? `<p><strong>Teléfono:</strong> <a href="tel:${phone}">${phone}</a></p>` : ''}
+                    ${website ? `<p><strong>Sitio web:</strong> <a href="${website}" target="_blank" rel="noopener">${website}</a></p>` : ''}
+                    ${opening ? `<p><strong>Horario detallado:</strong><br>${opening}</p>` : ''}
+                  `;
+                }
+              }
+            }
+          } catch(e) {
+            console.warn('No se pudieron obtener detalles de Google Places:', e);
+          }
+
+          // show site basic info; multimedia will be shown only in the infowindow carousel
+          siteInfoDiv.innerHTML = `
+            <h2>${siteInfo.nombre || 'Sin nombre'}</h2>
+            <p><strong>Descripción:</strong> ${siteInfo.descripcion || 'Descripción no disponible.'}</p>
+            <p><strong>Dirección:</strong> ${siteInfo.direccion || 'No disponible.'}</p>
+            <p><strong>Localidad:</strong> ${siteInfo.localidad || sitioLocalidadFromFk(siteInfo) || 'No disponible.'}</p>
+            <p><strong>Horario:</strong> ${horarioDisplay}</p>
+            <p><strong>Tarifa:</strong> ${tarifaDisplay}</p>
+            
+            <hr>
+            <div id="place_details">${placeHtml}</div>
+          `;
+
+          rightbar.style.display = 'block';
+          document.getElementById('open-sidebar').style.display = 'none';
+        };
+
+        // Manejar clicks en thumbs para mostrar vista ampliada (delegación)
+        document.addEventListener('click', (ev) => {
+          const t = ev.target.closest && ev.target.closest('.thumb');
+          if (!t) return;
+          const url = t.dataset.url;
+          const type = t.dataset.type;
+          const viewer = document.getElementById('gallery_viewer');
+          if (!viewer) return;
+          if (type === 'video') {
+            viewer.innerHTML = `<video controls style="width:100%;"><source src="${url}"></video>`;
+          } else if (type === 'audio') {
+            viewer.innerHTML = `<audio controls style="width:100%;"><source src="${url}"></audio>`;
+          } else {
+            viewer.innerHTML = `<img src="${url}" style="width:100%; border-radius:6px;">`;
+          }
+        });
+
+        // Obtener sitios desde la API (tabla 'Sitios' en la nueva estructura)
+        fetch('http://localhost:5031/api/Sitios')
+          .then((res) => res.json())
+          .then(async (data) => {
+            const CATEGORIA_HOTELERIA_UUID = '7e20135d-08bc-4240-bb19-160b85552efb';
+            const sitios = Array.isArray(data.datos) ? data.datos : [];
+            const sitiosFiltrados = sitios.filter((sitio) => {
+              return sitio.fkidCategoria_Turistica === CATEGORIA_HOTELERIA_UUID && (sitio.estado === 'Aprobado' || sitio.estado === 'APROBADO' || sitio.estado === 'aprobado');
+            });
+
+            // Poblar selector de localidades con los datos ya cargados en localidadMap
+            const selectLoc = document.getElementById('filter_localidad');
+            // limpiar opciones excepto la primera
+            while (selectLoc.options.length > 1) selectLoc.remove(1);
+            // Esperar que la promesa de carga de localidades haya terminado para tener nombres disponibles
+            await loadLocalidadesPromise;
+            // Calcular conteo por fkidLocalidad dentro de la categoría filtrada
+            const countMap = {};
+            sitiosFiltrados.forEach(s => {
+              const fk = s.fkidLocalidad || s.idLocalidad || s.localidad || '';
+              if (!fk) return;
+              countMap[fk] = (countMap[fk] || 0) + 1;
+            });
+
+            const seen = {};
+            // Añadir opciones mostrando nombre y recuento: "Nombre (N)"
+            sitiosFiltrados.forEach(s => {
+              const fk = s.fkidLocalidad || s.idLocalidad || s.localidad || '';
+              if (!fk || seen[fk]) return;
+              seen[fk] = true;
+              const name = (fk && localidadMap[fk]) ? localidadMap[fk] : (s.localidad || fk);
+              const count = countMap[fk] || 0;
+              const opt = document.createElement('option');
+              opt.value = fk;
+              opt.text = `${name} (${count})`;
+              selectLoc.appendChild(opt);
+            });
+
+            // Función para dibujar marcadores según filtro
+            const drawMarkers = (filterFk) => {
+              // limpiar marcadores previos
+              activeMarkers.forEach(m => m.setMap(null));
+              activeMarkers = [];
+              if (markerCluster) {
+                try { markerCluster.clearMarkers(); } catch(e){}
+                markerCluster = null;
+              }
+
+              const toPlot = sitiosFiltrados.filter(s => {
+                if (!filterFk) return true;
+                const fk = s.fkidLocalidad || s.idLocalidad || s.localidad;
+                return String(fk) === String(filterFk);
+              });
+
+              toPlot.forEach((sitio) => {
+                resolveSiteLocation(sitio, (updatedSite) => {
+                  const lat = updatedSite && updatedSite.latitud !== undefined ? parseFloat(updatedSite.latitud) : NaN;
+                  const lng = updatedSite && updatedSite.longitud !== undefined ? parseFloat(updatedSite.longitud) : NaN;
+                  if (isNaN(lat) || isNaN(lng)) return;
+                  const marker = new google.maps.Marker({ position: { lat: lat, lng: lng }, map: mapa, title: updatedSite.nombre, icon: { url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' } });
+                  activeMarkers.push(marker);
+                  marker.addListener('click', async () => {
+                    mapa.panTo({ lat: lat, lng: lng }); mapa.setZoom(15);
+                    findNearbyStations({ lat: lat, lng: lng });
+                    showRightbar(updatedSite);
+                    // Build a larger InfoWindow that uses ONLY API-provided multimedia and includes prev/next controls
+                    if (infoWindow) infoWindow.close();
+                    // slightly wider and taller to make multimedia easier to see
+                    let infoHtml = `<div style="max-width:420px; padding:8px;"><h3 style="margin:0 0 8px 0; font-size:1.1em;">${updatedSite.nombre||'Sin nombre'}</h3><div style="font-size:0.95em; color:#333; margin-bottom:8px;">${sitioLocalidadFromFk(updatedSite)||updatedSite.localidad||''}</div>`;
+                    try {
+                      const sitioId = updatedSite.idSitio || updatedSite.id;
+                      const resp = await fetch(`http://localhost:5031/api/Multimedia/fkidSitio/${sitioId}`);
+                      let medias = [];
+                      if (resp.ok) { const j = await resp.json(); medias = Array.isArray(j.datos) ? j.datos : (Array.isArray(j) ? j : []); }
+
+                      // Build carousel container
+                      infoHtml += `<div id="infowindow_carousel_${sitioId}" style="width:100%; height:270px; position:relative; background:#f7f7f7; display:flex; align-items:center; justify-content:center;">`;
+                      if (medias.length === 0) {
+                        infoHtml += `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#666;">Sin multimedia</div>`;
+                      } else {
+                        // create image/video elements, only one visible at a time
+                        medias.forEach((m, idx) => {
+                          const url = m.url || '';
+                          const lower = url.toLowerCase();
+                          if (lower.endsWith('.mp4') || lower.endsWith('.webm')) {
+                            infoHtml += `<video data-idx="${idx}" style="max-width:100%; max-height:100%; display:${idx===0?'block':'none'}; border-radius:6px;" controls><source src="${url}"></video>`;
+                          } else if (lower.endsWith('.mp3') || lower.endsWith('.wav')) {
+                            infoHtml += `<div data-idx="${idx}" style="display:${idx===0?'block':'none'}; width:100%; padding:12px; box-sizing:border-box;"> <audio controls style="width:100%;"><source src="${url}"></audio></div>`;
+                          } else {
+                            infoHtml += `<img data-idx="${idx}" src="${url}" style="width:100%; height:100%; object-fit:cover; display:${idx===0?'block':'none'}; border-radius:6px;">`;
+                          }
+                        });
+                        // Add navigation buttons
+                        infoHtml += `<button id="infow_prev_${sitioId}" style="position:absolute; left:6px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:#fff; border:none; padding:6px 8px; border-radius:4px; cursor:pointer;">◀</button>`;
+                        infoHtml += `<button id="infow_next_${sitioId}" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:#fff; border:none; padding:6px 8px; border-radius:4px; cursor:pointer;">▶</button>`;
+                      }
+                      infoHtml += `</div>`;
+                    } catch(e) { console.warn('Error fetching multimedia for infowindow', e); infoHtml += `<div style="width:100%; height:150px; display:flex; align-items:center; justify-content:center; color:#666;">Sin multimedia</div>`; }
+
+                    infoHtml += `<div style="margin-top:8px; font-size:0.9em;">${(updatedSite.descripcion||'').slice(0,240)}</div>`;
+                    infoHtml += '</div>';
+                    infoWindow = new google.maps.InfoWindow({ content: infoHtml, maxWidth: 380 });
+                    infoWindow.open(mapa, marker);
+
+                    // After infowindow DOM is ready, wire carousel buttons
+                    google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
+                      try {
+                        const sitioId = updatedSite.idSitio || updatedSite.id;
+                        const prev = document.getElementById(`infow_prev_${sitioId}`);
+                        const next = document.getElementById(`infow_next_${sitioId}`);
+                        const container = document.getElementById(`infowindow_carousel_${sitioId}`);
+                        if (!container) return;
+                        let current = 0;
+                        const items = Array.from(container.querySelectorAll('[data-idx]'));
+                        const setVisible = (i) => {
+                          items.forEach(el => { el.style.display = (parseInt(el.dataset.idx)===i) ? (el.tagName.toLowerCase()==='video' ? 'block' : 'block') : 'none';
+                            if (el.tagName.toLowerCase()==='video') { try{ if (parseInt(el.dataset.idx)!==i) el.pause(); } catch(e){} }
+                          });
+                        };
+                        if (prev) prev.addEventListener('click', () => { if (items.length===0) return; current = (current-1+items.length)%items.length; setVisible(current); });
+                        if (next) next.addEventListener('click', () => { if (items.length===0) return; current = (current+1)%items.length; setVisible(current); });
+                      } catch(e) { console.warn('Error wiring infowindow carousel', e); }
+                    });
+
+                    // add to cluster
+                    if (typeof MarkerClusterer !== 'undefined') { if (!markerCluster) markerCluster = new MarkerClusterer(mapa, activeMarkers, { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' }); else markerCluster.addMarker(marker); }
+                  });
+                });
+              });
+            };
+
+            // Inicial dibujado sin filtro
+            drawMarkers('');
+
+            // Re-dibujar al cambiar el selector
+            selectLoc.addEventListener('change', (e) => {
+              drawMarkers(e.target.value);
+            });
+
+            console.log('Sitios turísticos filtrados:', sitiosFiltrados);
+          })
+          .catch((err) => console.error("Error al cargar sitios turísticos:", err));
+      } else {
+        console.error("Google Maps API no está disponible.");
+      }
+    }
+
+    // Función para cerrar el rightbar
+    function closeSidebar() {
+      const rightbar = document.getElementById("rightbar");
+      rightbar.style.display = "none";
+    }
+
+    // Esperar a que la API esté completamente cargada
+    window.addEventListener("load", () => {
+      console.log("Intentando inicializar el mapa...");
+      initializeMap();
+    });
   </script>
 {% endblock %}
