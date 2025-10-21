@@ -18,5 +18,16 @@
   </div>
 
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.13.0/lottie.min.js"></script>
+  <!-- Bootstrap JS bundle (includes Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var dropdownElements = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+      dropdownElements.forEach(function (dropdownToggleEl) {
+        new bootstrap.Dropdown(dropdownToggleEl);
+      });
+    });
+  </script>
 </body>
 </html>
