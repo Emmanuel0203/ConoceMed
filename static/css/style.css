@@ -47,26 +47,11 @@ header {
   left: 0;
   width: 280px;
   z-index: 1030;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 30px 20px;
 }
 
 #sidebar .nav-link {
   font-family: 'Press Start 2P', cursive;
   font-size: 18px;
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  align-items: flex-start;
-  padding: 20px 0 20px 5px;
-}
-
-.sidebar-logo {
-  border-bottom: 2px solid white;
-  padding-bottom: 35px;
-  margin-bottom: 25px;
 }
 
 /* Ajuste para el dropdown */
@@ -255,9 +240,9 @@ header {
 }
 
 .texto-tarjeta h3 {
-  font-size: 2rem;
+  font-size: 1.4rem;
   font-weight: bold;
-  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  font-family: 'Press Start 2P', cursive;
   width: 100%;
 }
 
