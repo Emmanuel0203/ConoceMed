@@ -12,10 +12,7 @@ body {
   scroll-behavior: smooth;
   scroll-snap-type: y mandatory;
   overflow-x: hidden;
-
 }
-
-
 
 /* ==== HEADER Y FOOTER FIJOS ==== */
 header {
@@ -24,7 +21,6 @@ header {
   left: 0;
   width: 10%;
   height: 60px;
-  /* ajusta según tu diseño */
   z-index: 1050;
 }
 
@@ -34,60 +30,59 @@ header {
   left: 0;
   width: 100%;
   background: whitesmoke;
-  /* o el color que uses */
   color: rgb(53, 51, 51);
   text-align: center;
   padding: 1rem;
   z-index: 1000;
 }
 
-/* Sidebar altura completa y sin scroll innecesario */
+/* Sidebar altura completa y sin scroll */
 #sidebar {
   height: 100vh;
   min-height: 100vh;
   max-height: 100vh;
-  overflow-y: auto;
+  overflow-y: hidden; /* ✅ Aquí se quitó el scroll */
   position: fixed;
   top: 0;
   left: 0;
   width: 280px;
   z-index: 1030;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 30px 20px;
 }
 
 #sidebar .nav-link {
-  font-family: 'Press Start 2P', cursive;  /* 👈 Tipo de letra */
-  font-size: 18px;                        /* 👈 Tamaño de la letra */
+  font-family: 'Press Start 2P', cursive;
+  font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: flex-start;
+  padding: 20px 0 20px 5px;
 }
 
-/* AJUSTE PARA EL DROPDOWN DENTRO DEL SIDEBAR FIJO */
-/* Necesita un z-index mayor al del sidebar (1030) y al del header (1050) */
-.dropdown-menu {
-  /* Usamos un valor alto para garantizar que se apile por encima de todos */
-  z-index: 2000;
-  /* o mayor que el sidebar */
+.sidebar-logo {
+  border-bottom: 2px solid white;
+  padding-bottom: 35px;
+  margin-bottom: 25px;
+}
 
-  /* * Opcional, pero recomendado: Fuerza la posición estática o relativa
-     * para ayudar al menú a 'salir' del contenedor fijo del sidebar,
-     * especialmente si sigues usando data-bs-display="static".
-     */
+/* Ajuste para el dropdown */
+.dropdown-menu {
+  z-index: 2000;
   position: absolute;
 }
 
-
-
-
 .nav-pills .nav-link.active {
   background-color: #ff5733 !important;
-  /* fondo naranja */
   color: #fff !important;
-  /* texto blanco */
 }
 
 .nav-pills .nav-link:hover {
   background-color: #333;
-  /* gris oscuro */
   color: white;
-  /* texto naranja */
   border: 1px solid white;
 }
 
@@ -96,19 +91,17 @@ header {
 }
 
 /* ==== CONTENEDOR GENERAL ==== */
-/* Contenedor principal: sin doble scroll, margen izquierdo para sidebar */
 #contenedor-vistas {
   min-height: 100vh;
   height: 100vh;
   max-height: none;
-
   padding-bottom: 0;
   box-sizing: border-box;
   position: relative;
   overflow-x: hidden !important;
 }
 
-.vista {  
+.vista {
   min-height: 100vh;
   height: 100vh;
   max-height: none;
@@ -122,8 +115,6 @@ header {
   box-sizing: border-box;
   overflow: hidden;
 }
-
-
 
 .vista.visible {
   opacity: 1;
@@ -145,7 +136,6 @@ header {
   box-sizing: border-box;
 }
 
-
 .video-fondo {
   position: absolute;
   top: 0;
@@ -155,8 +145,6 @@ header {
   object-fit: cover;
   z-index: -1;
 }
-
-
 
 .layer {
   position: absolute;
@@ -173,17 +161,15 @@ header {
   z-index: 1;
   top: 0;
   left: 0;
-  /* ❗ ya no necesita desplazamiento */
   width: 100%;
-  /* ocupa todo el espacio del contenedor */
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
+  transform: translateX(-140px);
 }
-
 
 .contenido h1 {
   font-family: 'Press Start 2P', cursive;
@@ -203,20 +189,13 @@ header {
   font-size: 25px;
 }
 
-
 /* ==== FONDOS POR SECCIÓN ==== */
 #seccion2 {
-  background-image: url('/static/images/Fondo2.png'); /* ruta de tu imagen */
-  background-size: cover;      /* hace que la imagen cubra toda la sección */
-  background-position: center; /* centra la imagen */
-  background-repeat: no-repeat; /* evita que se repita */
+  background-image: url('/static/images/Fondo2.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
-
-
-
-
-
-
 
 /* ==== TARJETAS DE SECCIÓN 2 (CATEGORÍAS) ==== */
 .titulo-sec2 {
@@ -231,7 +210,6 @@ header {
 .titulo-sec2 p {
   font-family: 'Times New Roman', Times, serif;
   font-size: 30px;
-
 }
 
 .tarjetas-fila {
@@ -254,7 +232,6 @@ header {
   text-decoration: none;
   color: white;
   display: flex;
-
   transition: 0.3s ease;
   user-select: none;
 }
@@ -266,20 +243,18 @@ header {
 
 .texto-tarjeta {
   width: 100%;
-  background-color: black;
+  background-color: #fb676c;
   padding: 10px;
   z-index: 3;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
   color: white;
 }
 
 .texto-tarjeta h3 {
-
   font-size: 2rem;
   font-weight: bold;
   font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
@@ -289,7 +264,6 @@ header {
 .texto-tarjeta p {
   margin: 0;
   font-size: 1.4rem;
-
   width: 100%;
 }
 
@@ -307,15 +281,12 @@ header {
   content: "";
   position: absolute;
   inset: 0;
-  /* ocupa todo el contenedor */
   background-image: url("/static/images/gastronomia.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-
   filter: blur(3px);
   bottom: 90px;
-
   z-index: -1;
 }
 
@@ -329,9 +300,8 @@ header {
 .icon-Hotel {
   width: 100%;
   height: 500px;
-  transform: scale(1.3);
+  transform: scale(1.5) translateY(-30px) translateX(-20px);
 }
-
 
 .tarjeta.hoteleria {
   position: relative;
@@ -347,14 +317,11 @@ header {
   content: "";
   position: absolute;
   inset: 0;
-  /* ocupa todo el contenedor */
   background-image: url("/static/images/hoteleria.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-
   filter: blur(3px);
-
   z-index: -1;
 }
 
@@ -372,18 +339,13 @@ header {
   content: "";
   position: absolute;
   inset: 0;
-  /* ocupa todo el contenedor */
   background-image: url("/static/images/cultura.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-
   filter: blur(3px);
-
   z-index: -1;
 }
-
-
 
 /* ==== BOTONES ==== */
 button {
@@ -414,5 +376,4 @@ button:hover {
     max-width: 400px;
     margin-bottom: 2rem;
   }
-
 }

@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@splinetool/runtime": "^1.10.80",
+    "@splinetool/runtime": "^1.10.85",
     "leaflet": "^1.9.4",
     "react-leaflet": "^5.0.0"
   }
