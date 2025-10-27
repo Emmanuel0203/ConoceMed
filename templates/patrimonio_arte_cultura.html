@@ -145,6 +145,8 @@
   const placesService = new google.maps.places.PlacesService(mapa);
   const geocoder = new google.maps.Geocoder();
   let activeMarkers = []; // Lista para almacenar marcadores activos
+  const BASE_ICON = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+  const IS_AUTHENTICATED = document.body.dataset.authenticated === 'true';
   let localidadMap = {}; // mapa idLocalidad -> nombre
   let infoWindow = null; // InfoWindow para mostrar tarjeta pequeña sobre el marcador
   // Pequeño helper para escapar texto antes de insertarlo en HTML
@@ -373,16 +375,27 @@
                 if (details) {
                   const rating = details.rating ? `${details.rating} / 5` : 'N/A';
                   const reviews = details.user_ratings_total || 0;
-                  const phone = details.formatted_phone_number || '';
-                  const website = details.website || '';
-                  const opening = (details.opening_hours && details.opening_hours.weekday_text) ? details.opening_hours.weekday_text.join('<br>') : '';
+                  // Ocultar teléfono, sitio web y horario detallado por imprecisión.
+                  const types = Array.isArray(details.types) ? details.types : [];
+                  const typesText = types.length ? types.join(', ') : '';
+                  const dest = (!isNaN(lat) && !isNaN(lng)) ? `${lat},${lng}` : (details.geometry && details.geometry.location ? `${details.geometry.location.lat()},${details.geometry.location.lng()}` : '');
+                  const directionsHtml = dest ? `<p><a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}" target="_blank" rel="noopener">Cómo llegar</a></p>` : '';
 
-                  // Do NOT include Google photos here — multimedia must come only from our API
+                  // Mostrar estado Abierto / Cerrado si Google Places provee opening_hours.open_now
+                  let openNowHtml = '';
+                  try {
+                    if (details.opening_hours && typeof details.opening_hours.open_now === 'boolean') {
+                      openNowHtml = details.opening_hours.open_now
+                        ? `<p><strong>Estado:</strong> <span class="open-badge">Abierto ahora</span></p>`
+                        : `<p><strong>Estado:</strong> <span class="closed-badge">Cerrado</span></p>`;
+                    }
+                  } catch(e) { /* ignore */ }
+
                   placeHtml = `
                     <p><strong>Rating:</strong> ${rating} (${reviews} opiniones)</p>
-                    ${phone ? `<p><strong>Teléfono:</strong> <a href="tel:${phone}">${phone}</a></p>` : ''}
-                    ${website ? `<p><strong>Sitio web:</strong> <a href="${website}" target="_blank" rel="noopener">${website}</a></p>` : ''}
-                    ${opening ? `<p><strong>Horario detallado:</strong><br>${opening}</p>` : ''}
+                    ${openNowHtml}
+                    ${typesText ? `<p><strong>Categoría:</strong> ${typesText}</p>` : ''}
+                    ${directionsHtml}
                   `;
                 }
               }
@@ -403,6 +416,8 @@
             <hr>
             <div id="place_details">${placeHtml}</div>
           `;
+
+          // Controles admin removidos: volver a comportamiento anterior (sin botón de marcar)
 
           rightbar.style.display = 'block';
           document.getElementById('open-sidebar').style.display = 'none';
@@ -484,7 +499,10 @@
                   const lat = updatedSite && updatedSite.latitud !== undefined ? parseFloat(updatedSite.latitud) : NaN;
                   const lng = updatedSite && updatedSite.longitud !== undefined ? parseFloat(updatedSite.longitud) : NaN;
                   if (isNaN(lat) || isNaN(lng)) return;
-                  const marker = new google.maps.Marker({ position: { lat: lat, lng: lng }, map: mapa, title: updatedSite.nombre, icon: { url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' } });
+                  const sitioId = updatedSite.idSitio || updatedSite.id;
+                  const initialIcon = BASE_ICON;
+                  const marker = new google.maps.Marker({ position: { lat: lat, lng: lng }, map: mapa, title: updatedSite.nombre, icon: { url: initialIcon } });
+                  marker.__siteId = sitioId;
                   activeMarkers.push(marker);
                   // Mostrar título al pasar el puntero (hover) usando el HoverLabel custom
                   marker.addListener('mouseover', () => {
