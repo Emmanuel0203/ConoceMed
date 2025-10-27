@@ -46,5 +46,42 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+<!-- Navigation helper: make sidebar hash-links work from other routes (e.g. /admin) -->
+<script>
+  (function() {
+    // handle links in sidebar that use hashes like #seccion3
+    function onSidebarClick(e) {
+      const a = e.currentTarget;
+      const href = a.getAttribute('href');
+      if (!href) return;
+      // only handle pure-hash links (start with '#')
+      if (href.startsWith('#')) {
+        // if we're already on root, navigate in-page
+        if (location.pathname === '/' || location.pathname === '') {
+          e.preventDefault();
+          // set hash (this will trigger any hashchange handlers)
+          location.hash = href;
+        } else {
+          // not on root: navigate to root and include the hash so the main page will load that section
+          e.preventDefault();
+          window.location.href = '/' + href;
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      try {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar) return;
+        const links = sidebar.querySelectorAll('a[href^="#"]');
+        links.forEach(a => a.addEventListener('click', onSidebarClick));
+      } catch (e) {
+        // silently ignore in case sidebar not present
+        console.warn('sidebar navigation helper init failed', e);
+      }
+    });
+  })();
+</script>
+
 </body>
 </html>

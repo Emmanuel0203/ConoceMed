@@ -112,15 +112,38 @@
 
       const mensaje = document.getElementById("mensaje-resultado");
       if (data.success) {
-        mensaje.textContent = "✅ Lugar enviado con éxito. ¡Gracias por tu aporte!";
-        mensaje.style.color = "green";
+        // No mostramos el mensaje inline; usamos el flash overlay en su lugar
         this.reset();
+        if (typeof showFlash === 'function') {
+          showFlash('LUGAR SUGERIDO\n¡Gracias!');
+        }
+        // opcional: limpiar cualquier texto previo en el contenedor de mensajes
+        if (mensaje) { mensaje.textContent = ''; }
       } else {
         mensaje.textContent = "❌ Error al enviar. Revisa los campos.";
         mensaje.style.color = "red";
       }
     });
   </script>
+    <!-- Flash overlay helper (se usa para mostrar confirmación tipo videojuego) -->
+    <script>
+      function showFlash(message, duration = 2500) {
+        let overlay = document.getElementById('flash-overlay');
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.id = 'flash-overlay';
+          document.body.appendChild(overlay);
+        }
+        overlay.innerText = message;
+        overlay.classList.add('show');
+        // accesibilidad
+        overlay.setAttribute('role', 'status');
+        overlay.setAttribute('aria-live', 'polite');
+        // quitar tras duration
+        clearTimeout(overlay._hideTimeout);
+        overlay._hideTimeout = setTimeout(() => overlay.classList.remove('show'), duration);
+      }
+    </script>
   <!-- Google Places Autocomplete: populate lat/lng on selection (parity with crear/editar) -->
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAVokh3gjR3rQrmWyZi-lYXtPfbO8Qihao&libraries=places"></script>
   <script>
