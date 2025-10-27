@@ -164,6 +164,56 @@
   let activeMarkers = []; // Lista para almacenar marcadores activos
   let localidadMap = {}; // mapa idLocalidad -> nombre
   let infoWindow = null; // InfoWindow para mostrar tarjeta pequeña sobre el marcador
+  // Pequeño helper para escapar texto antes de insertarlo en HTML
+  const escapeHtml = (text) => {
+    if (text === undefined || text === null) return '';
+    return String(text).replace(/[&<>\"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
+  };
+
+  // HoverLabel: overlay liviano y estilizable para mostrar solo el título sin botón de cierre
+  function HoverLabel() {}
+  HoverLabel.prototype = Object.create(google.maps.OverlayView.prototype);
+  HoverLabel.prototype.onAdd = function() {
+    this.div = document.createElement('div');
+    this.div.className = 'map-hover-label';
+    Object.assign(this.div.style, {
+      position: 'absolute',
+      padding: '6px 10px',
+      background: 'white',
+      borderRadius: '8px',
+      boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
+      fontWeight: '700',
+      transform: 'translate(-50%, -120%)',
+      pointerEvents: 'none',
+      whiteSpace: 'nowrap'
+    });
+    this.getPanes().floatPane.appendChild(this.div);
+  };
+  HoverLabel.prototype.draw = function() {
+    if (!this.position || !this.div) return;
+    const pos = this.getProjection().fromLatLngToDivPixel(this.position);
+    if (pos) {
+      this.div.style.left = pos.x + 'px';
+      this.div.style.top = pos.y + 'px';
+    }
+  };
+  HoverLabel.prototype.onRemove = function() {
+    if (this.div && this.div.parentNode) this.div.parentNode.removeChild(this.div);
+    this.div = null;
+  };
+  HoverLabel.prototype.show = function(latlng, html) {
+    try {
+      this.position = new google.maps.LatLng(latlng.lat, latlng.lng);
+      if (!this.div) { /* onAdd will be called by setMap earlier */ }
+      if (this.div) this.div.innerHTML = html;
+      this.draw();
+      if (this.div) this.div.style.display = 'block';
+    } catch(e){}
+  };
+  HoverLabel.prototype.hide = function() { if (this.div) this.div.style.display = 'none'; this.position = null; };
+
+  const hoverLabel = new HoverLabel();
+  hoverLabel.setMap(mapa);
 
         // Cargar localidades para mapear fkidLocalidad -> nombre
         // Cargar localidades y exponer una promesa que se puede esperar
@@ -453,6 +503,14 @@
                   if (isNaN(lat) || isNaN(lng)) return;
                   const marker = new google.maps.Marker({ position: { lat: lat, lng: lng }, map: mapa, title: updatedSite.nombre, icon: { url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' } });
                   activeMarkers.push(marker);
+                  // Mostrar título al pasar el puntero (hover) usando el HoverLabel custom
+                  marker.addListener('mouseover', () => {
+                    try {
+                      const title = escapeHtml(updatedSite.nombre || 'Sin nombre');
+                      hoverLabel.show({ lat: lat, lng: lng }, `<div style="padding:2px 6px;">${title}</div>`);
+                    } catch(e) { /* ignoring hover errors */ }
+                  });
+                  marker.addListener('mouseout', () => { try { hoverLabel.hide(); } catch(e){} });
                   marker.addListener('click', async () => {
                     mapa.panTo({ lat: lat, lng: lng }); mapa.setZoom(15);
                     findNearbyStations({ lat: lat, lng: lng });
