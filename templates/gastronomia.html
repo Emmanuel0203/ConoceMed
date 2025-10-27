@@ -3,75 +3,12 @@
 {% block title %}Gastronomía{% endblock %}
 
 {% block head %}
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-  <!-- Estilos personalizados -->
-  <style>
-    html {
-      scroll-behavior: smooth; /* Scroll suave */
-    }
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #cfd8d8;
-      overflow-x: hidden;
-    }
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/gastronomia.css') }}">
+  
 
-    .contenido-principal {
-      padding: 2rem;
-      background-color: #cfd8d8;
-      min-height: 100vh;
-    }
-
-    h1 {
-      color: #154360;
-      padding-top: 1rem;
-    }
-
-    a button,
-    button {
-      background-color: #154360;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 20px;
-      font-size: 1rem;
-    }
-
-    a button:hover,
-    button:hover {
-      background-color: #0b2e4a;
-    }
-
-    #map {
-      margin-top: 1.5rem;
-      height: 650px; /* Ampliar la altura del mapa */
-      width: 100%;
-      border-radius: 10px;
-      border: 2px solid #154360;
-    }
-
-    /* Estilos para el rightbar */
-    #rightbar {
-      display: none;
-      position: fixed;
-      right: 0;
-      top: 0;
-      width: 300px;
-      height: 100%;
-      background: white;
-      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
-      overflow-y: auto;
-      padding: 20px;
-    }
-
-    #rightbar button {
-      float: right;
-    }
-  </style>
 {% endblock %}
 
 {% block content %}
@@ -523,7 +460,7 @@
                     // Build a larger InfoWindow that uses ONLY API-provided multimedia and includes prev/next controls
                     if (infoWindow) infoWindow.close();
                     // slightly wider and taller to make multimedia easier to see
-                    let infoHtml = `<div style="max-width:420px; padding:8px;"><h3 style="margin:0 0 8px 0; font-size:1.1em;">${updatedSite.nombre||'Sin nombre'}</h3><div style="font-size:0.95em; color:#333; margin-bottom:8px;">${sitioLocalidadFromFk(updatedSite)||updatedSite.localidad||''}</div>`;
+                    let infoHtml = `<div style="max-width:420px; padding:0;">`;
                     try {
                       const sitioId = updatedSite.idSitio || updatedSite.id;
                       const resp = await fetch(`http://localhost:5031/api/Multimedia/fkidSitio/${sitioId}`);
@@ -553,9 +490,7 @@
                       }
                       infoHtml += `</div>`;
                     } catch(e) { console.warn('Error fetching multimedia for infowindow', e); infoHtml += `<div style="width:100%; height:150px; display:flex; align-items:center; justify-content:center; color:#666;">Sin multimedia</div>`; }
-
-                    infoHtml += `<div style="margin-top:8px; font-size:0.9em;">${(updatedSite.descripcion||'').slice(0,240)}</div>`;
-                    infoHtml += '</div>';
+                    infoHtml += `</div>`;
                     infoWindow = new google.maps.InfoWindow({ content: infoHtml, maxWidth: 380 });
                     infoWindow.open(mapa, marker);
 
