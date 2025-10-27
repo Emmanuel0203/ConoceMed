@@ -99,6 +99,10 @@ header {
   padding: 2rem;
   box-sizing: border-box;
   overflow: hidden;
+  /* Make each full-screen section snap to the center of the viewport
+     when the browser or a hash navigation triggers scrolling. This
+     keeps the sections aligned consistently. */
+  scroll-snap-align: center;
 }
 
 .vista.visible {
@@ -110,7 +114,11 @@ header {
 #seccion1 {
   position: relative;
   overflow: hidden;
-  width: 100vw;
+  /* Use percentage width so the left sidebar margin doesn't create horizontal overflow
+     100vw measures the full viewport width and combined with the sidebar margin
+     it produces an extra horizontal gap. Using 100% keeps the section inside the
+     main content area (which already has margin-left: 280px). */
+  width: 100%;
   min-height: 100vh;
   max-height: none;
   display: flex;

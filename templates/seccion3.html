@@ -229,6 +229,14 @@
   window.onload = function () {
     updatePageDisplay();
     initIndicators();
+    // Si la navegación llegó por hash (#seccion3), forzamos un reflow
+    // para asegurar que el carrusel horizontal esté posicionado correctamente.
+    if (location.hash === '#seccion3') {
+      // pequeño retardo para permitir al navegador completar el scroll al anchor
+      setTimeout(() => {
+        updatePageDisplay();
+      }, 50);
+    }
   };
 
   // Navegación con teclado
@@ -237,6 +245,25 @@
       scrollPage('right');
     } else if (e.key === 'ArrowLeft') {
       scrollPage('left');
+    }
+  });
+
+  // Sincronizar al cambiar el hash (cuando el usuario usa links del sidebar)
+  window.addEventListener('hashchange', function() {
+    // Si llegamos a la sección 3, recalculamos la posición del carrusel
+    if (location.hash === '#seccion3') {
+      // forzamos reflow y actualización de transform
+      const content = document.getElementById('revista-contenido');
+      if (content) {
+        // quitar la transición momentáneamente evita animaciones extrañas
+        const prev = content.style.transition;
+        content.style.transition = 'none';
+        updatePageDisplay();
+        // reestablecer la transición después de un fotograma
+        requestAnimationFrame(() => {
+          content.style.transition = prev || 'transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)';
+        });
+      }
     }
   });
 </script>

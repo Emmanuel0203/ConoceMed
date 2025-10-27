@@ -26,49 +26,15 @@
     {% endblock %}
 
     <!-- Contenido dinámico -->
-    <main class="flex-fill" style="margin-left: 280px;">
+    <!-- Ajustamos el ancho del main para restar el ancho del sidebar y evitar overflow horizontal -->
+    <main class="flex-fill" style="margin-left: 280px; width: calc(100% - 280px); overflow-x: hidden; position: relative;">
       {% block content %}{% endblock %}
     </main>
   </div>
 
-  <!-- Footer oculto por defecto -->
-  <footer id="footer" class="d-none">
-    {% block footer %}
-      <!-- Footer deshabilitado temporalmente -->
-    {% endblock %}
-  </footer>
-  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.13.0/lottie.min.js"></script>
 
   {% block scripts %}{% endblock %}
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const section6 = document.getElementById("seccion6");
-      const footer = document.getElementById("footer");
-
-      if (section6 && footer) {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                // Aparece cuando seccion6 entra a la vista
-                footer.classList.remove("d-none");
-              } else {
-                // Desaparece al salir de seccion6
-                footer.classList.add("d-none");
-              }
-            });
-          },
-          {
-            threshold: 0.2, // basta con que el 20% sea visible
-          }
-        );
-
-        observer.observe(section6);
-      }
-    });
-  </script>
   <!-- Bootstrap JS con Popper incluido -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
