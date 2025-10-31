@@ -24,7 +24,7 @@ vistaAdmin = Blueprint('vistaAdmin', __name__)
 @vistaAdmin.route('/admin', methods=['GET'])
 def admin_panel():
     # Mostrar índice del panel de administración con enlaces a los dos paneles
-    return render_template('seccion7.html')
+    return render_template('panel.html')
 
 @vistaAdmin.route('/admin/editar/<id>', methods=['GET', 'POST'])
 def editar_lugar(id):

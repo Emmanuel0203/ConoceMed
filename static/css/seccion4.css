@@ -2,11 +2,33 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Orbitron&family=Press+Start+2P&display=swap');
 
+/* Badge de nivel */
+  .level-badge {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.7em;
+    padding: 10px 30px;
+    border-radius: 50px;
+    box-shadow: 
+      0 8px 20px rgba(0, 0, 0, 0.3),
+      inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+
 #seccion4 {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
-  background: url("../images/Fondo2.png") no-repeat center center fixed;
+  background: url("../images/Fondo1.png") no-repeat center center fixed;
   background-size: cover;
   font-family: 'Orbitron', sans-serif;
 }

@@ -52,6 +52,7 @@ header {
 #sidebar .nav-link {
   font-family: 'Press Start 2P', cursive;
   font-size: 18px;
+  -webkit-text-stroke: 0.8px rgb(241, 101, 101); /* grosor y color del contorno */
 }
 
 /* Ajuste para el dropdown */
@@ -184,13 +185,39 @@ header {
 
 /* ==== FONDOS POR SECCIÓN ==== */
 #seccion2 {
-  background-image: url('/static/images/Fondo2.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
+  background: url("/static/images/fondo1.png") no-repeat center center fixed;
+    background-size: cover;
+    animation: gradientShift 15s ease infinite;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Orbitron', sans-serif;
+  }
+
 
 /* ==== TARJETAS DE SECCIÓN 2 (CATEGORÍAS) ==== */
+
+/* Badge de nivel */
+  .level-badge {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.7em;
+    padding: 10px 20px;
+    border-radius: 50px;
+    box-shadow: 
+      0 8px 20px rgba(0, 0, 0, 0.3),
+      inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
 .titulo-sec2 {
   text-align: center;
 }
@@ -236,7 +263,7 @@ header {
 
 .texto-tarjeta {
   width: 100%;
-  background-color: #fb676c;
+  background-color: #646464;
   padding: 10px;
   z-index: 3;
   display: flex;
@@ -370,3 +397,5 @@ button:hover {
     margin-bottom: 2rem;
   }
 }
+
+
