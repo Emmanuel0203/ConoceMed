@@ -265,10 +265,12 @@
           // Formatear tarifa
           let tarifaDisplay = 'No disponible';
           if (siteInfo.tarifa === null || siteInfo.tarifa === undefined || siteInfo.tarifa === '') {
-            tarifaDisplay = 'Gratis';
+            tarifaDisplay = 'No registrado';
           } else {
             const tnum = Number(siteInfo.tarifa);
-            tarifaDisplay = (isNaN(tnum) || tnum === 0) ? 'Gratis' : `$${tnum}`;
+            tarifaDisplay = (isNaN(tnum) || tnum === 0)
+              ? 'No registrado'
+              : `Aproximadamente $${tnum}`;
           }
 
           // Formatear horario
