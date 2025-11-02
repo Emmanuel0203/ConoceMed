@@ -1,0 +1,16 @@
+[DEBUG] Datos enviados al formulario: {'nombre': 'NombrePrueba', 'direccion': 'Direc', 'descripcion': 'Desc', 'latitud': '1.23', 'longitud': '4.56', 'idLocalidad': '1', 'idCategoria_Turistica': '1'}
+[DEBUG] Archivos enviados: [<FileStorage: 'foto.jpg' ('image/jpeg')>]
+[DEBUG] Formulario validado correctamente
+[DEBUG] Datos preparados para el sitio: {'idSitio': '191a8e9c-453b-49f4-8604-2c173db2fb4d', 'nombre': 'NombrePrueba', 'direccion': 'Direc', 'descripcion': 'Desc', 'latitud': 1.23, 'longitud': 4.56, 'horario_apertura': None, 'horario_cierre': None, 'tarifa': None, 'estado': 'Sugerido', 'fkidLocalidad': '1', 'fkidCategoria_Turistica': '1', 'creado_por': '618ebb2e-ddf4-4344-8a06-e58c26038b70'}
+[DEBUG] Respuesta de la API para el sitio: {'success': True, 'idSitio': '191a8e9c-453b-49f4-8604-2c173db2fb4d'}
+[DEBUG] ID generado localmente: 191a8e9c-453b-49f4-8604-2c173db2fb4d
+[DEBUG] ID devuelto por la API: 191a8e9c-453b-49f4-8604-2c173db2fb4d
+[DEBUG] Iniciando procesamiento de archivos multimedia
+[DEBUG] Archivos detectados para procesamiento: ['foto.jpg']
+[DEBUG] Procesando archivo: foto.jpg
+[DEBUG] Archivo recibido: foto.jpg
+[DEBUG] Archivo guardado en: C:\Users\Emanuel\AppData\Local\Temp\pytest-of-Emanuel\pytest-19\test_post_sugerir_success0\uploads\0498829736c24114b524773a3d4d3dd1_foto.jpg
+[DEBUG] Archivo validado y guardado correctamente.
+[DEBUG] Tipo de multimedia detectado: imagen
+[DEBUG] Enviando datos a la API de multimedia: {'idMultimedia': '7f0c5b93-53fd-4790-a314-7dfdd4e6b45a', 'url': '/static/media/0498829736c24114b524773a3d4d3dd1_foto.jpg', 'descripcion': 'Archivo subido automáticamente', 'tipo': 'imagen', 'fkidSitio': '191a8e9c-453b-49f4-8604-2c173db2fb4d'}
+[DEBUG] Respuesta completa de la API para multimedia: {'success': True, 'idMultimedia': 'mm-1'}

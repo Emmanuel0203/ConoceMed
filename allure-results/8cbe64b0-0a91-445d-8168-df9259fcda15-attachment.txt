@@ -1,0 +1,2 @@
+[DEBUG] Localidades cargadas: [{'idLocalidad': 1, 'nombre': 'Loc1'}]
+[DEBUG] Categorías cargadas: [{'idCategoria_Turistica': 1, 'nombre': 'Cat1'}]

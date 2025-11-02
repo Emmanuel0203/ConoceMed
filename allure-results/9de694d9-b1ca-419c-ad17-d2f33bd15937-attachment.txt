@@ -1,0 +1,1 @@
+[DEBUG] Datos enviados al formulario: {'nombre': None, 'direccion': None, 'latitud': None, 'longitud': None, 'descripcion': None, 'horario_apertura': None, 'horario_cierre': None, 'tarifa': None, 'idLocalidad': None, 'idCategoria_Turistica': None, 'archivos': None, 'submit': False}
