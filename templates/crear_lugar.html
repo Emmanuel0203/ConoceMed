@@ -7,26 +7,33 @@
 
 <div class="container">
   <h1>Crear Lugar</h1>
-  <form method="post" enctype="multipart/form-data" action="{{ url_for('vistaAdmin.crear_lugar') }}{% if debug %}?debug=1{% endif %}">
+  <form method="post" enctype="multipart/form-data" action="{{ url_for('vistaAdmin.crear_lugar') }}">
     <div class="mb-3">
       <label class="form-label">Nombre</label>
-      <input class="form-control" name="nombre" value="" />
+      <input class="form-control" name="nombre" value="{{ datos.get('nombre','') if datos else '' }}" />
     </div>
     <div class="mb-3">
       <label class="form-label">Dirección</label>
-      <input class="form-control" name="direccion" value="" />
+      <input class="form-control" name="direccion" value="{{ datos.get('direccion','') if datos else '' }}" />
+      <div class="form-text text-muted" style="margin-top:6px;">Si no ves la dirección en el desplegable, arrastra el marcador en el mapa o introduce latitud/longitud manualmente.</div>
+      <!-- Preview map for address (Leaflet) -->
+  <div id="crear_direccion_preview_container" style="display:block; margin-top:10px;">
+        <label class="form-label">Vista previa ubicación</label>
+        <div id="crearAddressPreviewMap" style="width:100%; height:320px; border:1px solid #ddd; border-radius:6px;"></div>
+        <div class="form-text">Arrastre el marcador para ajustar la ubicación precisa. Lat/Lng se actualizarán automáticamente.</div>
+      </div>
     </div>
     <div class="mb-3">
       <label class="form-label">Latitud</label>
-      <input class="form-control" type="number" step="any" name="latitud" value="" />
+      <input class="form-control" type="number" step="any" name="latitud" value="{{ datos.get('latitud','') if datos else '' }}" />
     </div>
     <div class="mb-3">
       <label class="form-label">Longitud</label>
-      <input class="form-control" type="number" step="any" name="longitud" value="" />
+      <input class="form-control" type="number" step="any" name="longitud" value="{{ datos.get('longitud','') if datos else '' }}" />
     </div>
     <!-- Hidden fields to record provenance of location and confidence -->
-    <input type="hidden" name="location_source" value="" />
-    <input type="hidden" name="location_confidence" value="" />
+    <input type="hidden" name="location_source" value="{{ datos.get('location_source','') if datos else '' }}" />
+    <input type="hidden" name="location_confidence" value="{{ datos.get('location_confidence','') if datos else '' }}" />
     <div class="mb-3">
       <label class="form-label">Descripción</label>
       <textarea class="form-control" name="descripcion"></textarea>
@@ -38,7 +45,7 @@
         <option value="">-- Seleccione localidad --</option>
         {% for loc in localidades %}
           {% set loc_id = loc.get('idLocalidad') or loc.get('id') %}
-          <option value="{{ loc_id }}">{{ loc.get('nombre') }}</option>
+          <option value="{{ loc_id }}" {% if datos and datos.get('fkidLocalidad') and (str(datos.get('fkidLocalidad')) == str(loc_id)) %}selected{% endif %}>{{ loc.get('nombre') }}</option>
         {% endfor %}
       </select>
     </div>
@@ -56,7 +63,17 @@
 
     <div class="mb-3">
       <label class="form-label">Tarifa</label>
-      <input class="form-control" type="number" name="tarifa" step="0.01" min="0" value="" />
+      <input class="form-control" type="number" name="tarifa" step="0.01" min="0" value="{{ datos.get('tarifa','') if datos else '' }}" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Horario apertura</label>
+      <input class="form-control" type="time" name="horario_apertura" value="{{ datos.get('horario_apertura','') if datos else '' }}" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Horario cierre</label>
+      <input class="form-control" type="time" name="horario_cierre" value="{{ datos.get('horario_cierre','') if datos else '' }}" />
     </div>
 
     <div class="mb-3">
@@ -67,6 +84,13 @@
     <button class="btn btn-primary" type="submit">Crear</button>
     <a href="{{ url_for('vistaAdmin.gestionar_sitios_turisticos') }}" class="btn btn-secondary">Cancelar</a>
   </form>
+  {% if show_map_confirm %}
+    <div class="mt-3 alert alert-warning">
+      <h5>Confirmar ubicación sugerida</h5>
+      <p>El sistema detectó que la dirección puede corresponder a otra ciudad. Ajusta la posición en el mapa si es necesario y pulsa "Crear" cuando estés listo.</p>
+      <div id="confirm-map" style="height: 400px; width: 100%;"></div>
+    </div>
+  {% endif %}
   {% if debug and api_response %}
     <div class="mt-3 alert alert-info">
       <h5>Debug API response</h5>
@@ -78,31 +102,202 @@
 {% endblock %}
 
 {% block scripts %}
-  <!-- Include a lightweight Google Places autocomplete integration to capture lat/lng and provenance -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAVokh3gjR3rQrmWyZi-lYXtPfbO8Qihao&libraries=places"></script>
+  <!-- Server-side payloads as JSON (not executed) to avoid inline Jinja in JS expressions -->
+  <script type="application/json" id="__crear_lugar_data">{{ datos|default({}) | tojson }}</script>
+  <script type="application/json" id="__crear_lugar_config">{{ {'GOOGLE_PLACES_API_KEY': config.get('GOOGLE_PLACES_API_KEY','')} | tojson }}</script>
   <script>
   (function(){
-    function safeInit(){
+    // Dynamically load Google Places script only if key present to avoid static Jinja in src
+    try{
+      var rawData = document.getElementById('__crear_lugar_data');
+      var rawCfg = document.getElementById('__crear_lugar_config');
+      var __CREAR_LUGAR_DATA = {};
+      var __CREAR_LUGAR_CONFIG = {};
+      try{ __CREAR_LUGAR_DATA = rawData ? JSON.parse(rawData.textContent || rawData.innerText || '{}') : {}; }catch(e){ __CREAR_LUGAR_DATA = {}; }
+      try{ __CREAR_LUGAR_CONFIG = rawCfg ? JSON.parse(rawCfg.textContent || rawCfg.innerText || '{}') : {}; }catch(e){ __CREAR_LUGAR_CONFIG = {}; }
+      var key = __CREAR_LUGAR_CONFIG && __CREAR_LUGAR_CONFIG.GOOGLE_PLACES_API_KEY ? __CREAR_LUGAR_CONFIG.GOOGLE_PLACES_API_KEY : '';
+      if(key){
+        var s = document.createElement('script');
+        s.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key) + '&libraries=places';
+        s.async = true; s.defer = true;
+        document.head.appendChild(s);
+      }
+    }catch(e){console.warn('loader init', e)}
+
+    function initAutocomplete(){
       try{
-        const addressInput = document.querySelector('input[name="direccion"]');
-        const latInput = document.querySelector('input[name="latitud"]');
-        const lngInput = document.querySelector('input[name="longitud"]');
-        if(!addressInput) return;
-        const autocomplete = new google.maps.places.Autocomplete(addressInput, { types: ['geocode'], componentRestrictions: { country: 'co' } });
+        var addressInput = document.querySelector('input[name="direccion"]');
+        var latInput = document.querySelector('input[name="latitud"]');
+        var lngInput = document.querySelector('input[name="longitud"]');
+        if(!addressInput || !window.google || !google.maps || !google.maps.places) return;
+
+        // Medellín bounding box (approx.) to bias + restrict places
+        var sw = new google.maps.LatLng(6.09, -75.66);
+        var ne = new google.maps.LatLng(6.35, -75.45);
+        var medBounds = new google.maps.LatLngBounds(sw, ne);
+
+        var opts = {
+          types: ['geocode'],
+          bounds: medBounds,
+          strictBounds: true,
+          componentRestrictions: { country: 'co' }
+        };
+
+        var autocomplete = new google.maps.places.Autocomplete(addressInput, opts);
         autocomplete.addListener('place_changed', function(){
-          const place = autocomplete.getPlace();
-          if(place && place.geometry && place.geometry.location){
-            const lat = place.geometry.location.lat();
-            const lng = place.geometry.location.lng();
-            if(latInput) latInput.value = lat;
-            if(lngInput) lngInput.value = lng;
-            const srcF = document.querySelector('input[name="location_source"]'); if(srcF) srcF.value='client';
-            const cF = document.querySelector('input[name="location_confidence"]'); if(cF) cF.value='0.95';
-          }
+          try{
+            var place = autocomplete.getPlace();
+            if(place && place.geometry && place.geometry.location){
+              var lat = place.geometry.location.lat();
+              var lng = place.geometry.location.lng();
+              if(latInput) latInput.value = lat;
+              if(lngInput) lngInput.value = lng;
+              var srcF = document.querySelector('input[name="location_source"]'); if(srcF) srcF.value='client';
+              var cF = document.querySelector('input[name="location_confidence"]'); if(cF) cF.value='0.95';
+                  if(window.showCrearPreview) try{ window.showCrearPreview(lat, lng); }catch(e){}
+            }
+          }catch(_e){console.warn('place_changed handler', _e)}
         });
-      }catch(e){console.warn('crear_lugar autocomplete init', e);}    
+      }catch(e){console.warn('initAutocomplete', e)}
     }
-    function waitG(){ if(window.google && google.maps && google.maps.places) safeInit(); else setTimeout(waitG, 300);} waitG();
+
+    // Poll for google to be ready if loaded dynamically
+    function waitForGoogle(){ if(window.google && google.maps && google.maps.places) { initAutocomplete(); } else { setTimeout(waitForGoogle, 300); } }
+    waitForGoogle();
   })();
   </script>
+  <!-- Google Maps preview for crear_lugar (replaces previous Leaflet preview) -->
+  <script>
+    (function(){
+      var map, marker;
+
+      function ensureGoogleReady(cb){
+        if(window.google && google.maps) return cb();
+        setTimeout(function(){ ensureGoogleReady(cb); }, 300);
+      }
+
+      function showCrearPreview(lat, lng){
+        try{
+          var container = document.getElementById('crear_direccion_preview_container');
+          var preview = document.getElementById('crearAddressPreviewMap');
+          var latInput = document.querySelector('input[name="latitud"]');
+          var lngInput = document.querySelector('input[name="longitud"]');
+          if(!container || !preview) return;
+          container.style.display = 'block';
+          ensureGoogleReady(function(){
+            try{
+              var position = { lat: Number(lat), lng: Number(lng) };
+              if(!map){
+                map = new google.maps.Map(preview, { center: position, zoom: 16 });
+                marker = new google.maps.Marker({ position: position, map: map, draggable: true });
+                marker.addListener('dragend', function(){
+                  try{
+                    var p = marker.getPosition();
+                    if(latInput) latInput.value = p.lat();
+                    if(lngInput) lngInput.value = p.lng();
+                  }catch(e){ console.warn('crear marker drag', e); }
+                });
+              } else {
+                var pos = new google.maps.LatLng(position.lat, position.lng);
+                marker.setPosition(pos);
+                map.setCenter(pos);
+              }
+            }catch(e){ console.warn('google showCrearPreview inner', e); }
+          });
+          if(latInput) latInput.value = lat;
+          if(lngInput) lngInput.value = lng;
+        }catch(e){ console.warn('showCrearPreview', e); }
+      }
+
+      try{ window.showCrearPreview = showCrearPreview; }catch(e){}
+
+      // Show preview when lat/lng inputs change (manual entry) and when address gains focus/click
+      (function attachLatLngListeners(){
+        try{
+          var latInput = document.querySelector('input[name="latitud"]');
+          var lngInput = document.querySelector('input[name="longitud"]');
+          var _initialized_preview = false;
+          function tryShowFromInputs(){
+            try{
+              if(!latInput || !lngInput) return;
+              var la = parseFloat(latInput.value);
+              var lo = parseFloat(lngInput.value);
+              if(!isNaN(la) && !isNaN(lo)){
+                showCrearPreview(la, lo);
+                _initialized_preview = true;
+                return;
+              }
+              if(!_initialized_preview){
+                showCrearPreview(6.2442, -75.5812);
+                _initialized_preview = true;
+              }
+            }catch(e){}
+          }
+          if(latInput && lngInput){
+            latInput.addEventListener('change', tryShowFromInputs);
+            lngInput.addEventListener('change', tryShowFromInputs);
+            latInput.addEventListener('input', tryShowFromInputs);
+            lngInput.addEventListener('input', tryShowFromInputs);
+            try{ setTimeout(tryShowFromInputs, 200); }catch(e){}
+          }
+          var addressInput = document.querySelector('input[name="direccion"]');
+          if(addressInput){
+            addressInput.addEventListener('focus', tryShowFromInputs);
+            addressInput.addEventListener('click', tryShowFromInputs);
+          }
+        }catch(e){ console.warn('attachLatLngListeners', e); }
+      })();
+
+    })();
+  </script>
+  {% if show_map_confirm %}
+    <!-- Leaflet for map confirmation (no API key required) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-sA+e2m0qk2Vv6v1Q5S9k6mKZ1Yg7p2vM4v+0h1qjv3s=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9N1j7k9sM0f3o6m5Qz3G2n4+3TQ4xZf4qvV8l9g9kM=" crossorigin=""></script>
+    <script>
+      (function(){
+        try{
+          const latInput = document.querySelector('input[name="latitud"]');
+          const lngInput = document.querySelector('input[name="longitud"]');
+          const srcF = document.querySelector('input[name="location_source"]');
+          const cF = document.querySelector('input[name="location_confidence"]');
+          var rawDataEl = document.getElementById('__crear_lugar_data');
+          var parsedData = {};
+          try{ parsedData = rawDataEl ? JSON.parse(rawDataEl.textContent || rawDataEl.innerText || '{}') : {}; }catch(e){ parsedData = {}; }
+          const initialLat = (parsedData && parsedData.latitud != null) ? Number(parsedData.latitud) : 6.2442;
+          const initialLng = (parsedData && parsedData.longitud != null) ? Number(parsedData.longitud) : -75.5812;
+          const map = L.map('confirm-map').setView([initialLat, initialLng], 14);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+          const marker = L.marker([initialLat, initialLng], {draggable:true}).addTo(map);
+          marker.on('dragend', function(e){
+            try{
+              const p = marker.getLatLng();
+              if(latInput) latInput.value = p.lat;
+              if(lngInput) lngInput.value = p.lng;
+              if(srcF) srcF.value = 'manual';
+              if(cF) cF.value = '0.95';
+            }catch(_e){console.warn('marker drag handler', _e)}
+          });
+          // also update marker if inputs change
+          function updateMarkerFromInputs(){
+            try{
+              if(!latInput || !lngInput) return;
+              const la = parseFloat(latInput.value || '0');
+              const lo = parseFloat(lngInput.value || '0');
+              if(!isNaN(la) && !isNaN(lo)){
+                marker.setLatLng([la, lo]);
+                map.setView([la, lo]);
+              }
+            }catch(_e){console.warn('updateMarkerFromInputs', _e)}
+          }
+          try{
+            if(latInput && lngInput){
+              latInput.addEventListener('change', updateMarkerFromInputs);
+              lngInput.addEventListener('change', updateMarkerFromInputs);
+            }
+          }catch(_e){console.warn('attach listeners', _e)}
+        }catch(e){console.warn('confirm map init', e);}
+      })();
+    </script>
+  {% endif %}
 {% endblock %}
