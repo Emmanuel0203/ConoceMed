@@ -6,6 +6,7 @@ GOOGLE_KEY = os.environ.get('GOOGLE_GEOCODING_API_KEY')
 SKIP_SERVER_GEOCODE = os.environ.get('SKIP_SERVER_GEOCODE', '').lower() in ('1', 'true', 'yes')
 
 
+@lru_cache(maxsize=1024)
 def _google_geocode(address, region='CO', components: str = None):
     if not GOOGLE_KEY:
         return {'ok': False, 'error': 'No API key configured for Google Geocoding'}
@@ -114,6 +115,26 @@ def geocode_with_variants(address: str, fkidLocalidad: str = None, api_client_fa
         if geo and geo.get('ok'):
             return geo, norm
 
+    # 2b) If no locality provided, try biasing the search to a default locality
+    # This helps avoid matches in other cities when user is operating in a known city (e.g., Medellín)
+    try:
+        from flask import current_app
+        default_locality = current_app.config.get('DEFAULT_LOCALITY_NAME') if hasattr(current_app, 'config') else None
+    except Exception:
+        default_locality = None
+    if not fkidLocalidad and default_locality:
+        try:
+            components = f"locality:{default_locality}|country:{region}"
+            geo = _google_geocode(address, region=region, components=components)
+            if geo and geo.get('ok'):
+                return geo, f"{address} + components:{components}"
+            if norm and norm != address:
+                geo = _google_geocode(norm, region=region, components=components)
+                if geo and geo.get('ok'):
+                    return geo, f"{norm} + components:{components}"
+        except Exception:
+            pass
+
     # 3) prefer using components for locality if available via API client factory
     if fkidLocalidad and api_client_factory:
         try:
@@ -157,4 +178,100 @@ def geocode_with_variants(address: str, fkidLocalidad: str = None, api_client_fa
     if geo and geo.get('ok'):
         return geo, combo
 
+    # 5) Fallback to Nominatim (OpenStreetMap) if Google failed or not available
+    try:
+        nom = _nominatim_geocode(address)
+        if nom and nom.get('ok'):
+            return nom, 'nominatim'
+        # try normalized address
+        if norm and norm != address:
+            nom = _nominatim_geocode(norm)
+            if nom and nom.get('ok'):
+                return nom, 'nominatim-normalized'
+        # try combo
+        nom = _nominatim_geocode(combo)
+        if nom and nom.get('ok'):
+            return nom, 'nominatim-combo'
+    except Exception:
+        # ignore nominatim errors; final return below will propagate last google result or None
+        pass
+
     return geo, None
+
+
+def _nominatim_geocode(address: str, timeout: int = 5):
+    """Query Nominatim (OpenStreetMap) as a fallback geocoder.
+
+    Note: Nominatim public instance has usage policies and rate limits. Use responsibly.
+    """
+    if not address:
+        return {'ok': False, 'error': 'No address provided for nominatim'}
+    url = 'https://nominatim.openstreetmap.org/search'
+    params = {'q': address, 'format': 'json', 'limit': 1}
+    headers = {'User-Agent': current_app_user_agent()}
+    try:
+        resp = requests.get(url, params=params, headers=headers, timeout=timeout)
+        if resp.status_code != 200:
+            return {'ok': False, 'error': f'Nominatim HTTP {resp.status_code}', 'raw': None}
+        data = resp.json()
+        if not data:
+            return {'ok': False, 'error': 'Nominatim: no results', 'raw': data}
+        item = data[0]
+        return {'ok': True, 'lat': float(item.get('lat')), 'lng': float(item.get('lon')), 'formatted_address': item.get('display_name'), 'raw': item, 'confidence': 0.6}
+    except requests.RequestException as e:
+        return {'ok': False, 'error': str(e), 'raw': None}
+
+
+_nominatim_geocode = lru_cache(maxsize=1024)(_nominatim_geocode)
+
+
+def current_app_user_agent():
+    """Return a sensible User-Agent string for geocode requests.
+
+    Avoid importing Flask's current_app here to keep function usable in tests; derive from env if available.
+    """
+    try:
+        from flask import current_app
+        app_name = getattr(current_app, 'name', 'ConoceMed')
+    except Exception:
+        app_name = 'ConoceMed'
+    return f"{app_name}/1.0 (+https://example.com)"
+
+
+def extract_locality_from_google(raw: dict) -> str:
+    """Try to extract locality/city from Google Geocoding result 'raw' (first result)."""
+    try:
+        components = raw.get('address_components', [])
+        for comp in components:
+            types = comp.get('types', [])
+            if 'locality' in types or 'administrative_area_level_2' in types:
+                return comp.get('long_name')
+        # fallback to administrative_area_level_1
+        for comp in components:
+            types = comp.get('types', [])
+            if 'administrative_area_level_1' in types:
+                return comp.get('long_name')
+    except Exception:
+        pass
+    return ''
+
+
+def extract_locality_from_nominatim(raw: dict) -> str:
+    """Try to extract locality from Nominatim 'raw' (item)."""
+    try:
+        if isinstance(raw, dict):
+            # Nominatim may include an 'address' dict with 'city' or 'town' or 'county'
+            addr = raw.get('address') or {}
+            for key in ('city', 'town', 'village', 'hamlet', 'county'):
+                if addr.get(key):
+                    return addr.get(key)
+            # fallback to display_name parsing
+            display = raw.get('display_name', '')
+            if display:
+                # take first locality-like token
+                parts = [p.strip() for p in display.split(',')]
+                if parts:
+                    return parts[-3] if len(parts) >= 3 else parts[-2] if len(parts) >= 2 else parts[0]
+    except Exception:
+        pass
+    return ''

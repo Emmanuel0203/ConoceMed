@@ -162,7 +162,10 @@ header {
   justify-content: center;
   align-items: center;
   text-align: center;
-  transform: translateX(-140px);
+  /* Remove manual horizontal offset so the content centers correctly
+     inside the main layout. Previously translated left by -140px which
+     caused the text to appear off-center. */
+  transform: none;
 }
 
 .contenido h1 {

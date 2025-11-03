@@ -32,6 +32,13 @@ app = Flask(__name__)
 app.config.from_object(Config)
 app.config['SECRET_KEY'] = "tu_clave_secreta"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# Leer claves de APIs desde variables de entorno (.env) si están presentes
+app.config['GOOGLE_GEOCODING_API_KEY'] = os.getenv('GOOGLE_GEOCODING_API_KEY', '')
+# Opcional: clave para Google Places JS (autocomplete en cliente)
+app.config['GOOGLE_PLACES_API_KEY'] = os.getenv('GOOGLE_PLACES_API_KEY', '')
+
+app.config['DEFAULT_LOCALITY_NAME'] = os.getenv('DEFAULT_LOCALITY_NAME', 'Medellín')
+app.config['DEFAULT_ADMIN_AREA'] = os.getenv('DEFAULT_ADMIN_AREA', 'Antioquia')
 
 # Helpers para plantillas: exponer urllib.parse y un util para extraer filename
 # Exponer la función urlparse en los globals de Jinja (no el módulo)
@@ -47,6 +54,27 @@ app.jinja_env.globals['filename_from_path'] = filename_from_path
 login_manager = LoginManager()
 login_manager.login_view = "vistaLogin.login"
 login_manager.init_app(app)
+
+# Context processor para formularios y datos globales
+@app.context_processor
+def inject_global_forms():
+    form = LugarSugeridoForm()
+    api_localidades = APIClient("Localidad")
+    localidades_data = api_localidades.get_data()
+    localidades = localidades_data.get("datos", []) if isinstance(localidades_data, dict) else localidades_data
+    form.idLocalidad.choices = [(str(l["idLocalidad"]), l["nombre"]) for l in localidades]
+    # Insertar opción vacía al inicio
+    form.idLocalidad.choices.insert(0, ('', '-- Seleccione localidad --'))
+
+    api_categorias = APIClient("Categoria_Turistica")
+    categorias_data = api_categorias.get_data()
+    categorias = categorias_data.get("datos", []) if isinstance(categorias_data, dict) else categorias_data
+    form.idCategoria_Turistica.choices = [(str(c["idCategoria_Turistica"]), c["nombre"]) for c in categorias]
+    # Insertar opción vacía al inicio
+    form.idCategoria_Turistica.choices.insert(0, ('', '-- Seleccione categoría --'))
+
+    admin_token = app.config.get('ADMIN_UPLOADS_TOKEN')
+    return dict(form=form, localidades=localidades, categorias=categorias, admin_uploads_token=admin_token)
 
 # Configurar el archivo de log
 """logging.basicConfig(
@@ -111,6 +139,7 @@ def index():
 
     # Agregar debug para verificar datos enviados
     print("[DEBUG] Datos enviados al formulario:", form.data)
+    print("[DEBUG] idLocalidad.choices:", getattr(form.idLocalidad, 'choices', None))
 
 
     return render_template(
@@ -139,27 +168,7 @@ def patrimonio():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-    # Context processor para formularios y datos globales
-@app.context_processor
-def inject_global_forms():
-    form = LugarSugeridoForm()
-    api_localidades = APIClient("Localidad")
-    localidades_data = api_localidades.get_data()
-    localidades = localidades_data.get("datos", []) if isinstance(localidades_data, dict) else localidades_data
-    form.idLocalidad.choices = [(str(l["idLocalidad"]), l["nombre"]) for l in localidades]
-    # Insertar opción vacía al inicio
-    form.idLocalidad.choices.insert(0, ('', '-- Seleccione localidad --'))
-
-    api_categorias = APIClient("Categoria_Turistica")
-    categorias_data = api_categorias.get_data()
-    categorias = categorias_data.get("datos", []) if isinstance(categorias_data, dict) else categorias_data
-    form.idCategoria_Turistica.choices = [(str(c["idCategoria_Turistica"]), c["nombre"]) for c in categorias]
-    # Insertar opción vacía al inicio
-    form.idCategoria_Turistica.choices.insert(0, ('', '-- Seleccione categoría --'))
-
-    admin_token = app.config.get('ADMIN_UPLOADS_TOKEN')
-    return dict(form=form, localidades=localidades, categorias=categorias, admin_uploads_token=admin_token)
+ 
 
 @app.route("/ruta_ejemplo", methods=["GET", "POST"])
 def ruta_ejemplo():

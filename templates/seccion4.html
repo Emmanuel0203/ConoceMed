@@ -40,10 +40,10 @@
         {{ form.descripcion(class="form-control", placeholder="Descripción *", rows="4") }}
 
         {{ form.horario_apertura.label }}
-        {{ form.horario_apertura(class="form-control", placeholder="Horario de apertura *") }}
+        {{ form.horario_apertura(class="form-control", placeholder="Horario de apertura *", type="time") }}
 
         {{ form.horario_cierre.label }}
-        {{ form.horario_cierre(class="form-control", placeholder="Horario de cierre *") }}
+        {{ form.horario_cierre(class="form-control", placeholder="Horario de cierre *", type="time") }}
 
         {{ form.tarifa.label }}
         {{ form.tarifa(class="form-control", placeholder="Tarifa *") }}
@@ -146,31 +146,72 @@
         overlay._hideTimeout = setTimeout(() => overlay.classList.remove('show'), duration);
       }
     </script>
-  <!-- Google Places Autocomplete: populate lat/lng on selection (parity with crear/editar) -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAVokh3gjR3rQrmWyZi-lYXtPfbO8Qihao&libraries=places"></script>
+  <!-- Google Places Autocomplete: populate lat/lng on selection (biased/restricted to Medellín) -->
+  <script type="application/json" id="__seccion4_config">{{ {'GOOGLE_PLACES_API_KEY': config.get('GOOGLE_PLACES_API_KEY','')} | tojson }}</script>
   <script>
   (function(){
-    function safeInit(){
+    // Medellín bounding box (approx.) to bias and restrict suggestions
+    const MEDELLIN_BOUNDS = {
+      sw: { lat: 6.09, lng: -75.66 },
+      ne: { lat: 6.35, lng: -75.45 }
+    };
+
+    function initAutocomplete(){
       try{
         const addressInput = document.querySelector('input[name="direccion"]');
         const latInput = document.querySelector('input[name="latitud"]');
         const lngInput = document.querySelector('input[name="longitud"]');
         if(!addressInput) return;
-        const autocomplete = new google.maps.places.Autocomplete(addressInput, { types: ['geocode'], componentRestrictions: { country: 'co' } });
+
+        // construct LatLngBounds for Medellín
+        const sw = new google.maps.LatLng(MEDELLIN_BOUNDS.sw.lat, MEDELLIN_BOUNDS.sw.lng);
+        const ne = new google.maps.LatLng(MEDELLIN_BOUNDS.ne.lat, MEDELLIN_BOUNDS.ne.lng);
+        const medBounds = new google.maps.LatLngBounds(sw, ne);
+
+        const opts = {
+          types: ['geocode'],
+          bounds: medBounds,
+          strictBounds: true,
+          componentRestrictions: { country: 'co' }
+        };
+
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, opts);
         autocomplete.addListener('place_changed', function(){
-          const place = autocomplete.getPlace();
-          if(place && place.geometry && place.geometry.location){
-            const lat = place.geometry.location.lat();
-            const lng = place.geometry.location.lng();
-            if(latInput) latInput.value = lat;
-            if(lngInput) lngInput.value = lng;
-            const srcF = document.querySelector('input[name="location_source"]'); if(srcF) srcF.value='client';
-            const cF = document.querySelector('input[name="location_confidence"]'); if(cF) cF.value='0.95';
-          }
+          try{
+            const place = autocomplete.getPlace();
+            if(place && place.geometry && place.geometry.location){
+              const lat = place.geometry.location.lat();
+              const lng = place.geometry.location.lng();
+              if(latInput) latInput.value = lat;
+              if(lngInput) lngInput.value = lng;
+              const srcF = document.querySelector('input[name="location_source"]'); if(srcF) srcF.value='client';
+              const cF = document.querySelector('input[name="location_confidence"]'); if(cF) cF.value='0.95';
+            }
+          }catch(_e){ console.warn('seccion4 place_changed', _e); }
         });
-      }catch(e){console.warn('seccion4 autocomplete init', e);}    
+      }catch(e){ console.warn('seccion4 autocomplete init', e); }
     }
-    function waitG(){ if(window.google && google.maps && google.maps.places) safeInit(); else setTimeout(waitG, 300);} waitG();
+
+    // dynamic loader for Google Maps script using config value
+    try{
+      const raw = document.getElementById('__seccion4_config');
+      let cfg = {};
+      try{ cfg = raw ? JSON.parse(raw.textContent || raw.innerText || '{}') : {}; }catch(e){ cfg = {}; }
+      const key = cfg && cfg.GOOGLE_PLACES_API_KEY ? cfg.GOOGLE_PLACES_API_KEY : '';
+      if(key){
+        const s = document.createElement('script');
+        s.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key) + '&libraries=places';
+        s.async = true; s.defer = true;
+        s.onload = function(){
+          try{ initAutocomplete(); }catch(e){ console.warn('initAutocomplete onload', e); }
+        };
+        document.head.appendChild(s);
+      } else {
+        // If no API key configured, we still try to init in case script is already present
+        function waitForGoogle(){ if(window.google && google.maps && google.maps.places) initAutocomplete(); else setTimeout(waitForGoogle, 300); }
+        waitForGoogle();
+      }
+    }catch(e){ console.warn('seccion4 google loader', e); }
   })();
   </script>
   {% endblock %}

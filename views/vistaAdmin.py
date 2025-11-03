@@ -26,6 +26,7 @@ def admin_panel():
     # Mostrar índice del panel de administración con enlaces a los dos paneles
     return render_template('panel.html')
 
+
 @vistaAdmin.route('/admin/editar/<id>', methods=['GET', 'POST'])
 def editar_lugar(id):
     # Normalizar id por si vino con '<' o '>' (errores de copia/pegar en URL)
@@ -101,7 +102,7 @@ def editar_lugar(id):
         flash('Sitio actualizado correctamente.', 'success')
         # Redirigir según el estado del lugar: si Aprobado -> sitios_turisticos, si no -> lugares_sugeridos
         try:
-            estado_lugar = datos.get('estado') or (lugar.get('estado') if isinstance(lugar, dict) else None)
+            estado_lugar = datos.get('estado') or (datos.get('estado') if isinstance(datos, dict) else None)
         except Exception:
             estado_lugar = None
         try:
@@ -305,11 +306,49 @@ def crear_lugar():
                 current_app.logger.warning(f"crear_lugar: geocoding falló: {geo}")
                 flash('No se pudo geocodificar la dirección. Verifica la dirección e inténtalo de nuevo.', 'danger')
                 return redirect(url_for('vistaAdmin.crear_lugar'))
-        # If geo ok but low confidence, warn and ask manual correction
+        # If geo ok but low confidence, prefer to allow the admin to confirm via map instead of redirecting.
         if geo and geo.get('ok') and geo.get('confidence', 1) < 0.6:
             current_app.logger.info(f"crear_lugar: geocoding ambigüo (confidence={geo.get('confidence')}) para '{datos.get('direccion')}'")
-            flash('La dirección parece ambigua. Ajusta la dirección o usa el mapa para mayor precisión.', 'warning')
-            return redirect(url_for('vistaAdmin.crear_lugar'))
+            # If the client already supplied high-confidence coordinates (from Places or manual), allow insertion to proceed.
+            try:
+                client_conf = datos.get('location_confidence')
+                client_src = (datos.get('location_source') or '').lower()
+                client_conf = float(client_conf) if client_conf is not None else None
+            except Exception:
+                client_conf = None
+                client_src = None
+
+            threshold = float(current_app.config.get('LOCATION_CONFIDENCE_THRESHOLD', 0.8))
+            if datos.get('latitud') is not None and datos.get('longitud') is not None and client_src in ('client', 'manual') and client_conf is not None and client_conf >= threshold:
+                current_app.logger.debug('crear_lugar: low-confidence server geocode but client provided high-confidence coords; proceeding with insert')
+                # proceed to insertion below
+                pass
+            else:
+                # Render the create form pre-filled and show the confirmation map so admin can correct or set coords.
+                flash('La dirección parece ambigua. Ajusta la ubicación en el mapa o proporciona latitud/longitud antes de crear.', 'warning')
+                try:
+                    localidades = api_localidades.get_data() or []
+                except Exception:
+                    localidades = []
+                try:
+                    categorias = api_categorias.get_data() or []
+                except Exception:
+                    categorias = []
+                return render_template('crear_lugar.html', localidades=localidades, categorias=categorias, datos=datos, show_map_confirm=True)
+
+        # If server geocode suggests a different city and controller marked it for confirmation,
+        # render the create form again with a map so the admin can confirm or adjust the coordinates.
+        if datos.get('location_needs_confirmation'):
+            try:
+                localidades = api_localidades.get_data() or []
+            except Exception:
+                localidades = []
+            try:
+                categorias = api_categorias.get_data() or []
+            except Exception:
+                categorias = []
+            # Render form with pre-filled datos and a flag to show confirmation map
+            return render_template('crear_lugar.html', localidades=localidades, categorias=categorias, datos=datos, show_map_confirm=True)
     except Exception:
         current_app.logger.exception('crear_lugar: error durante geocoding helper')
         # continue: we will still attempt to create the sitio using available datos

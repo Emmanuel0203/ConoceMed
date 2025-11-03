@@ -106,6 +106,47 @@ def apply_geocode(datos: dict, api_client_factory: Callable = None) -> Tuple[dic
                 datos['location_confidence'] = float(geo.get('confidence'))
             except Exception:
                 pass
+        # Attempt to validate locality/city to avoid matches in other cities
+        try:
+            from utils.geocode import extract_locality_from_google, extract_locality_from_nominatim
+            preferred_locality = None
+            try:
+                preferred_locality = current_app.config.get('DEFAULT_LOCALITY_NAME')
+            except Exception:
+                preferred_locality = None
+            city_name = ''
+            # Determine provider by inspecting raw
+            raw = geo.get('raw')
+            if isinstance(raw, dict) and raw.get('address_components'):
+                city_name = extract_locality_from_google(raw)
+            elif isinstance(raw, dict) and raw.get('display_name'):
+                city_name = extract_locality_from_nominatim(raw)
+            if city_name:
+                datos['location_city'] = city_name
+                if preferred_locality and (not datos.get('fkidLocalidad')):
+                    try:
+                        # Normalize both names (remove accents, case) before comparing.
+                        # Previous logic flagged results when the detected city was NOT the preferred locality.
+                        # The intended behavior (only "filter" / prompt when the detected city IS the preferred locality,
+                        # e.g., only Medellín addresses) requires the opposite comparison.
+                        import unicodedata
+                        def _norm(s):
+                            if s is None:
+                                return ''
+                            s2 = str(s)
+                            s2 = unicodedata.normalize('NFKD', s2)
+                            # remove diacritics
+                            s2 = ''.join(ch for ch in s2 if not unicodedata.combining(ch))
+                            return s2.lower().strip()
+
+                        if _norm(city_name) == _norm(preferred_locality):
+                            # mark as needing confirmation by user when the detected city MATCHES the preferred locality
+                            datos['location_needs_confirmation'] = True
+                    except Exception:
+                        pass
+        except Exception:
+            # ignore locality extraction errors
+            pass
     return geo, used
 
 

@@ -16,9 +16,10 @@
     <div class="mb-3">
       <label class="form-label">Dirección</label>
       <input class="form-control" name="direccion" value="{{ lugar.direccion or '' }}" />
+      <div class="form-text text-muted" style="margin-top:6px;">Si no ves la dirección en el desplegable, ajusta la ubicación en la vista previa o introduce latitud/longitud manualmente.</div>
     </div>
     <!-- Preview map for address (Google Places autocomplete will populate this) -->
-    <div class="mb-3" id="direccion_preview_container" style="display:none;">
+  <div class="mb-3" id="direccion_preview_container" style="display:block;">
       <label class="form-label">Vista previa ubicación</label>
       <div id="addressPreviewMap" style="width:100%; height:320px; border:1px solid #ddd; border-radius:6px;"></div>
       <div class="form-text">Arrastre el marcador para ajustar la ubicación precisa. Lat/Lng se actualizarán automáticamente.</div>
@@ -131,7 +132,7 @@
   }
   </script>
   <!-- Google Maps Places autocomplete + preview map -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAVokh3gjR3rQrmWyZi-lYXtPfbO8Qihao&libraries=places"></script>
+  <script type="application/json" id="__editar_lugar_config">{{ {'GOOGLE_PLACES_API_KEY': config.get('GOOGLE_PLACES_API_KEY','')} | tojson }}</script>
   <script>
   // Initialize Google Places autocomplete and preview map
   function initAddressAutocompleteEditor(){
@@ -144,8 +145,13 @@
 
       if(!addressInput) return;
 
-      const geocoder = new google.maps.Geocoder();
-      const autocomplete = new google.maps.places.Autocomplete(addressInput, { types: ['geocode'], componentRestrictions: { country: 'co' } });
+  const geocoder = new google.maps.Geocoder();
+  // Medellín bounding box (approx.)
+  const sw = new google.maps.LatLng(6.09, -75.66);
+  const ne = new google.maps.LatLng(6.35, -75.45);
+  const medBounds = new google.maps.LatLngBounds(sw, ne);
+  const opts = { types: ['geocode'], bounds: medBounds, strictBounds: true, componentRestrictions: { country: 'co' } };
+  const autocomplete = new google.maps.places.Autocomplete(addressInput, opts);
 
       let previewMap = null;
       let previewMarker = null;
@@ -174,6 +180,18 @@
           });
         }
       }
+
+      // On init, if lat/lng inputs already have values, show the preview immediately
+      try{
+        const initialLat = parseFloat((document.querySelector('input[name="latitud"]').value || '').toString());
+        const initialLng = parseFloat((document.querySelector('input[name="longitud"]').value || '').toString());
+        if(!isNaN(initialLat) && !isNaN(initialLng)){
+          setMarker(initialLat, initialLng, 15);
+        } else {
+          // otherwise center on Medellín by default
+          setMarker(6.2442, -75.5812, 12);
+        }
+      }catch(e){ /* ignore if inputs missing */ }
 
       autocomplete.addListener('place_changed', function(){
         const place = autocomplete.getPlace();
@@ -242,11 +260,27 @@
   function waitForGmapsAndInit(){
     if(window.google && google.maps && google.maps.places){
       initAddressAutocompleteEditor();
-    } else {
-      setTimeout(waitForGmapsAndInit, 300);
-    }
+    } else { setTimeout(waitForGmapsAndInit, 300); }
   }
-  waitForGmapsAndInit();
+
+  // dynamic loader for Google Maps script using config value
+  (function(){
+    try{
+      var raw = document.getElementById('__editar_lugar_config');
+      var cfg = {};
+      try{ cfg = raw ? JSON.parse(raw.textContent || raw.innerText || '{}') : {}; }catch(e){ cfg = {}; }
+      var key = cfg && cfg.GOOGLE_PLACES_API_KEY ? cfg.GOOGLE_PLACES_API_KEY : '';
+      if(key){
+        var s = document.createElement('script');
+        s.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key) + '&libraries=places';
+        s.async = true; s.defer = true;
+        s.onload = function(){ waitForGmapsAndInit(); };
+        document.head.appendChild(s);
+      } else {
+        waitForGmapsAndInit();
+      }
+    }catch(e){ console.warn('editar google loader', e); }
+  })();
   </script>
   {% endblock %}
 
