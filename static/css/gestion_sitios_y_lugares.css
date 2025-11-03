@@ -1,0 +1,11 @@
+/* ==== GESTIONAR SITIOS TURISTICOS APROBADOS Y LUGARES SUGERIDOS ==== */
+    
+    h1 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.8em;
+    color: rgb(6, 42, 248); /* color de relleno */
+    -webkit-text-stroke: 1px rgb(241, 101, 101); /* grosor y color del contorno */
+    text-align: center;
+}
+
+    

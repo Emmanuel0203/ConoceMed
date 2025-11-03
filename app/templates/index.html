@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Turismo Medellín - Vistas Scrollables</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div id="contenedor-vistas">
+    <!-- Aquí se cargarán las secciones -->
+  </div>
+
+  <script>
+    const secciones = [
+      'seccion1.html',
+      'seccion2.html',
+      'seccion3.html',
+      'seccion4.html'
+    ];
+
+    const contenedor = document.getElementById('contenedor-vistas');
+
+    async function cargarSecciones() {
+      for (const archivo of secciones) {
+        try {
+          const resp = await fetch(archivo);
+          if (!resp.ok) throw new Error('Error al cargar ' + archivo);
+          const html = await resp.text();
+          contenedor.insertAdjacentHTML('beforeend', html);
+        } catch (error) {
+          console.error(error);
+          contenedor.insertAdjacentHTML('beforeend', `<section class="vista"><p>Error cargando ${archivo}</p></section>`);
+        }
+      }
+
+      agregarEventoClick();
+      agregarEventosOpciones();
+      actualizarVisible();
+    }
+
+    function agregarEventoClick() {
+      let indiceActual = 0;
+      const vistas = document.querySelectorAll('.vista');
+      const totalVistas = vistas.length;
+
+      document.addEventListener('click', (e) => {
+        const yClick = e.clientY; // posición vertical del clic
+        const alturaVentana = window.innerHeight;
+
+        if (yClick < alturaVentana / 2) {
+          // clic en mitad superior → ir a vista anterior
+          indiceActual--;
+          if (indiceActual < 0) {
+            indiceActual = 0;
+          }
+        } else {
+          // clic en mitad inferior → ir a vista siguiente
+          indiceActual++;
+          if (indiceActual >= totalVistas) {
+            indiceActual = totalVistas - 1;
+          }
+        }
+
+        vistas[indiceActual].scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
+    function agregarEventosOpciones() {
+      document.querySelectorAll('.tarjeta').forEach(tarjeta => {
+        tarjeta.addEventListener('click', (e) => {
+          e.stopPropagation(); // <--- Esto evita que el clic suba al document
+          const target = document.querySelector(tarjeta.dataset.target);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+    }
+
+
+    function actualizarVisible() {
+      const vistas = document.querySelectorAll('.vista');
+      const scrollTop = contenedor.scrollTop;
+      const altura = window.innerHeight;
+
+      vistas.forEach(vista => {
+        const offsetTop = vista.offsetTop;
+        if (scrollTop >= offsetTop - altura / 2 && scrollTop < offsetTop + altura / 2) {
+          vista.classList.add('visible');
+        } else {
+          vista.classList.remove('visible');
+        }
+      });
+    }
+
+    contenedor.addEventListener('scroll', actualizarVisible);
+
+    cargarSecciones();
+  </script>
+
+</body>
+</html>
