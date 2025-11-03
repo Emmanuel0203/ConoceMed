@@ -40,10 +40,6 @@
       </a>
     </li>
     <li>
-      <a href="#seccion7" class="nav-link">
-        <i class="bi bi-people me-2"></i> ANALÍTICA
-      </a>
-    </li>
     {% if current_user.is_authenticated %}
     <li>
       <a href="{{ url_for('vistaAdmin.admin_panel') }}" class="nav-link">

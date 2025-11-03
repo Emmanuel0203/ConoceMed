@@ -265,10 +265,12 @@
           // Formatear tarifa
           let tarifaDisplay = 'No disponible';
           if (siteInfo.tarifa === null || siteInfo.tarifa === undefined || siteInfo.tarifa === '') {
-            tarifaDisplay = 'Gratis';
+            tarifaDisplay = 'No registrado';
           } else {
             const tnum = Number(siteInfo.tarifa);
-            tarifaDisplay = (isNaN(tnum) || tnum === 0) ? 'Gratis' : `$${tnum}`;
+            tarifaDisplay = (isNaN(tnum) || tnum === 0)
+              ? 'No registrado'
+              : `Aproximadamente $${tnum}`;
           }
 
           // Formatear horario
@@ -434,7 +436,7 @@
                   const lat = updatedSite && updatedSite.latitud !== undefined ? parseFloat(updatedSite.latitud) : NaN;
                   const lng = updatedSite && updatedSite.longitud !== undefined ? parseFloat(updatedSite.longitud) : NaN;
                   if (isNaN(lat) || isNaN(lng)) return;
-                  const marker = new google.maps.Marker({ position: { lat: lat, lng: lng }, map: mapa, title: updatedSite.nombre, icon: { url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' } });
+                  const marker = new google.maps.Marker({ position: { lat: lat, lng: lng }, map: mapa, title: updatedSite.nombre, icon: { url: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png' } });
                   activeMarkers.push(marker);
                   marker.addListener('click', async () => {
                     mapa.panTo({ lat: lat, lng: lng }); mapa.setZoom(15);
